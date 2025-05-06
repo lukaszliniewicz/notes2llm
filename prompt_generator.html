@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes2LLM Prompt Generator</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #384D68;
+        }
+
+        .prompt-gen-container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #384D68;
+        }
+        
+        .description {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #555;
+            font-style: italic;
+        }
+
+        fieldset {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+
+        legend {
+            font-weight: bold;
+            padding: 0 10px;
+            color: #384D68;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="number"],
+        select,
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            padding: 0;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .prompt-gen-color-picker-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .prompt-gen-color-picker-container label {
+            margin-right: 10px;
+            margin-bottom: 0;
+            width: 200px;
+        }
+
+        .prompt-gen-color-value {
+            margin-left: 10px;
+            font-family: monospace;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .prompt-gen-radio-group label,
+        .prompt-gen-checkbox-group label {
+            font-weight: normal;
+            display: inline-block;
+            margin-right: 15px;
+        }
+        
+        .prompt-gen-inline-label {
+            display: inline-block !important;
+            font-weight: normal !important;
+            margin-left: 5px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #ffffff;
+            color: #384D68;
+            border: 1px solid #384D68;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #384D68;
+            color: white;
+        }
+
+        #prompt-gen-output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef;
+            border: 1px solid #cce;
+            white-space: pre-wrap; /* Preserve line breaks and spaces */
+            word-wrap: break-word;
+            font-family: monospace;
+        }
+
+        .prompt-gen-hidden {
+            display: none;
+        }
+
+        .prompt-gen-sub-options {
+            margin-left: 20px;
+            padding-left: 15px;
+            border-left: 2px solid #eee;
+            margin-top: 10px;
+        }
+        
+        .prompt-gen-field-note {
+            font-size: 0.9em;
+            color: #777;
+            margin-bottom: 10px;
+        }
+        
+        .prompt-gen-nested-sub-options {
+            margin-left: 15px;
+            padding-left: 10px;
+            border-left: 1px solid #eee;
+            margin-top: 5px;
+        }
+        
+        .prompt-gen-copy-button {
+            display: inline-block;
+            width: auto;
+            padding: 5px 10px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        .prompt-gen-output-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="prompt-gen-container">
+        <p class="description">
+            This tool helps you compose effective prompts for Large Language Models (LLMs) to generate high-quality code 
+            with specific styling and functionality. The resulting code can be used directly or further refined in 
+            Notes2LLM to streamline your workflow and achieve consistent, precise results from AI models.
+        </p>
+
+        <form id="prompt-gen-form">
+            <!-- PURPOSE -->
+            <fieldset>
+                <legend>Purpose</legend>
+                <label>What kind of code would you like to generate?</label>
+                <div class="prompt-gen-radio-group">
+                    <input type="radio" id="prompt-gen-purpose-html-css-js" name="purpose" value="html_css_js" checked>
+                    <label for="prompt-gen-purpose-html-css-js">HTML/CSS/JS (General)</label><br>
+                    <input type="radio" id="prompt-gen-purpose-wordpress" name="purpose" value="wordpress">
+                    <label for="prompt-gen-purpose-wordpress">Wordpress Element</label><br>
+                    <input type="radio" id="prompt-gen-purpose-email" name="purpose" value="email">
+                    <label for="prompt-gen-purpose-email">Email</label><br>
+                    <input type="radio" id="prompt-gen-purpose-full-website" name="purpose" value="full_website">
+                    <label for="prompt-gen-purpose-full-website">Full Website</label><br>
+                    <input type="radio" id="prompt-gen-purpose-web-app" name="purpose" value="web_app">
+                    <label for="prompt-gen-purpose-web-app">Full Web App</label><br>
+                    <input type="radio" id="prompt-gen-purpose-web-page" name="purpose" value="web_page">
+                    <label for="prompt-gen-purpose-web-page">Web Page for Existing Site</label><br>
+                </div>
+
+                <div id="prompt-gen-wordpress-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label for="prompt-gen-wordpress-type">Wordpress Element Type:</label>
+                    <select id="prompt-gen-wordpress-type" name="wordpressType">
+                        <option value="homepage">Homepage Section</option>
+                        <option value="post">Post Content Element</option>
+                        <option value="page">Page Content Element</option>
+                        <option value="page_element">Specific Page Element (e.g., widget)</option>
+                    </select>
+                </div>
+
+                <div id="prompt-gen-email-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label for="prompt-gen-email-type">Email Type:</label>
+                    <select id="prompt-gen-email-type" name="emailType">
+                        <option value="regular">Regular Email</option>
+                        <option value="newsletter">Newsletter</option>
+                        <option value="signature">Email Signature</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <!-- STYLING -->
+            <fieldset>
+                <legend>Styling</legend>
+                <div>
+                    <label for="prompt-gen-reference-code">Reference Code (Optional):</label>
+                    <p class="prompt-gen-field-note">Paste reference code here (e.g., a code snippet from your site, or the full 'View Source' output of a page). If 'View Source' is pasted, we will attempt to extract the main body content and internal CSS styles as a reference for the AI. Any pasted code will be given to the model as style reference.</p>
+                    <p class="prompt-gen-field-note">Tip: You can also make a screenshot of the page or element you want to use as a reference and upload it to the LLM (Claude, ChatGPT, and Gemini all accept images as input).</p>
+                    <textarea id="prompt-gen-reference-code" name="referenceCode" placeholder="Paste HTML/CSS here..."></textarea>
+                </div>
+
+                <div>
+                    <label>General Style Instructions:</label>
+                    <div class="prompt-gen-radio-group">
+                        <input type="radio" id="prompt-gen-style-modern" name="generalStyle" value="modern" checked>
+                        <label for="prompt-gen-style-modern">Modern</label>
+                        <input type="radio" id="prompt-gen-style-retro" name="generalStyle" value="retro">
+                        <label for="prompt-gen-style-retro">Retro</label>
+                        <input type="radio" id="prompt-gen-style-striking" name="generalStyle" value="visually_striking">
+                        <label for="prompt-gen-style-striking">Visually Striking</label>
+                        <input type="radio" id="prompt-gen-style-professional" name="generalStyle" value="professional">
+                        <label for="prompt-gen-style-professional">Professional</label>
+                    </div>
+                    <label for="prompt-gen-additional-style">Additional General Style Instructions:</label>
+                    <input type="text" id="prompt-gen-additional-style" name="additionalStyle" placeholder="e.g., minimalist, playful">
+                </div>
+
+                <div>
+                    <input type="checkbox" id="prompt-gen-define-color" name="defineColor">
+                    <label for="prompt-gen-define-color" class="prompt-gen-inline-label">Define Colors?</label>
+                </div>
+                <div id="prompt-gen-color-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label>Color Palette:</label>
+                    <div class="prompt-gen-radio-group">
+                        <input type="radio" id="prompt-gen-model-palette" name="paletteChoice" value="model_generates" checked>
+                        <label for="prompt-gen-model-palette">Let the model generate a palette from a single color:</label>
+                        <div class="prompt-gen-color-picker-container">
+                            <input type="color" id="prompt-gen-single-color-for-palette" name="singleColorForPalette" value="#384D68">
+                            <span id="prompt-gen-single-color-value" class="prompt-gen-color-value">#384D68</span>
+                        </div>
+                    </div>
+                    <div class="prompt-gen-radio-group">
+                        <input type="radio" id="prompt-gen-manual-palette" name="paletteChoice" value="manual">
+                        <label for="prompt-gen-manual-palette">Define manually:</label>
+                    </div>
+                    <div id="prompt-gen-manual-color-inputs" class="prompt-gen-sub-options">
+                        <div class="prompt-gen-color-picker-container">
+                            <label for="prompt-gen-main-accent-color">Main Accent Color:</label>
+                            <input type="color" id="prompt-gen-main-accent-color" name="mainAccentColor" value="#384D68" disabled>
+                            <span id="prompt-gen-main-accent-value" class="prompt-gen-color-value">#384D68</span>
+                        </div>
+                        <div class="prompt-gen-color-picker-container">
+                            <label for="prompt-gen-secondary-accent-color">Secondary Accent Color:</label>
+                            <input type="color" id="prompt-gen-secondary-accent-color" name="secondaryAccentColor" value="#2ecc71" disabled>
+                            <span id="prompt-gen-secondary-accent-value" class="prompt-gen-color-value">#2ecc71</span>
+                        </div>
+                        <div class="prompt-gen-color-picker-container">
+                            <label for="prompt-gen-text-color">Text Color:</label>
+                            <input type="color" id="prompt-gen-text-color" name="textColor" value="#384D68" disabled>
+                            <span id="prompt-gen-text-color-value" class="prompt-gen-color-value">#384D68</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <input type="checkbox" id="prompt-gen-define-font" name="defineFont">
+                    <label for="prompt-gen-define-font" class="prompt-gen-inline-label">Define Fonts?</label>
+                </div>
+                <div id="prompt-gen-font-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label>Font:</label>
+                    <select id="prompt-gen-font-choice" name="fontChoice">
+                        <option value="standard">Standard Web Fonts (e.g., Arial, Verdana)</option>
+                        <option value="google">Google Fonts</option>
+                    </select>
+                    <div id="prompt-gen-google-font-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                        <label for="prompt-gen-google-font-name">Google Font Name(s) (comma-separated):</label>
+                        <input type="text" id="prompt-gen-google-font-name" name="googleFontName" placeholder="e.g., Roboto, Open Sans">
+                        <input type="checkbox" id="prompt-gen-include-google-font-import" name="includeGoogleFontImport" checked>
+                        <label for="prompt-gen-include-google-font-import" class="prompt-gen-inline-label">Ask model to include font import code</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="prompt-gen-allow-font-awesome" name="allowFontAwesome" checked>
+                        <label for="prompt-gen-allow-font-awesome" class="prompt-gen-inline-label">Allow Font Awesome icons</label>
+                    </div>
+                    <div id="prompt-gen-font-awesome-import-option" class="prompt-gen-sub-options">
+                        <input type="checkbox" id="prompt-gen-import-font-awesome" name="importFontAwesome" checked>
+                        <label for="prompt-gen-import-font-awesome" class="prompt-gen-inline-label">Import Font Awesome (if used)</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- COMPOSITION / ELEMENTS -->
+            <fieldset>
+                <legend>Composition / Elements (Optional)</legend>
+                <p class="prompt-gen-field-note">You can also specify these in the Content Instructions below.</p>
+
+                <div id="prompt-gen-header-options">
+                    <label for="prompt-gen-header-type">Include Header / Hero Section / Title:</label>
+                    <select id="prompt-gen-header-type" name="headerType">
+                        <option value="no" selected>No</option>
+                        <option value="title_only">Title Only</option>
+                        <option value="simple_header">Simple Header</option>
+                        <option value="hero_image">Hero Section with Image</option>
+                    </select>
+                </div>
+                <div id="prompt-gen-header-image-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label>Image Source:</label>
+                    <div class="prompt-gen-radio-group">
+                        <input type="radio" id="prompt-gen-image-placeholder" name="imageSource" value="placeholder" checked>
+                        <label for="prompt-gen-image-placeholder">Use Placeholder</label>
+                        <input type="radio" id="prompt-gen-image-url" name="imageSource" value="url">
+                        <label for="prompt-gen-image-url">Provide Image URL</label>
+                    </div>
+                    <input type="url" id="prompt-gen-header-image-url-input" name="headerImageUrlInput" placeholder="https://example.com/image.jpg" class="prompt-gen-hidden">
+                </div>
+
+                <div>
+                    <label for="prompt-gen-toc-type">Include Internal Menu / TOC (based on heading IDs):</label>
+                    <select id="prompt-gen-toc-type" name="tocType">
+                        <option value="no" selected>No</option>
+                        <option value="top">On Top</option>
+                        <option value="top_scrolling">On Top (Scrolling with Page)</option>
+                        <option value="floating_left">Floating Widget on Left</option>
+                    </select>
+                </div>
+
+                <div>
+                    <input type="checkbox" id="prompt-gen-include-pictures" name="includePictures">
+                    <label for="prompt-gen-include-pictures" class="prompt-gen-inline-label">Include Pictures?</label>
+                </div>
+                <div id="prompt-gen-pictures-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label>Picture Source:</label>
+                    <div class="prompt-gen-radio-group">
+                        <input type="radio" id="prompt-gen-pictures-placeholder" name="picturesSource" value="placeholder" checked>
+                        <label for="prompt-gen-pictures-placeholder">Use Placeholders</label>
+                        <input type="radio" id="prompt-gen-pictures-url" name="picturesSource" value="url">
+                        <label for="prompt-gen-pictures-url">Provide Image URLs</label>
+                    </div>
+                    
+                    <div id="prompt-gen-pictures-placeholder-options" class="prompt-gen-sub-options">
+                        <label for="prompt-gen-pictures-placeholder-count">Number of placeholders:</label>
+                        <input type="number" id="prompt-gen-pictures-placeholder-count" name="picturesPlaceholderCount" min="1" value="3">
+                    </div>
+                    
+                    <div id="prompt-gen-pictures-url-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                        <label for="prompt-gen-pictures-urls">Image URLs (one per line):</label>
+                        <textarea id="prompt-gen-pictures-urls" name="picturesUrls" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"></textarea>
+                    </div>
+                    
+                    <label>Display Method:</label>
+                    <div class="prompt-gen-radio-group">
+                        <input type="radio" id="prompt-gen-pictures-as-is" name="picturesDisplayMethod" value="as_is" checked>
+                        <label for="prompt-gen-pictures-as-is">Add as regular images</label>
+                        <input type="radio" id="prompt-gen-pictures-background" name="picturesDisplayMethod" value="background">
+                        <label for="prompt-gen-pictures-background">Use as background in styled frames</label>
+                    </div>
+                    
+                    <div>
+                        <input type="checkbox" id="prompt-gen-pictures-lightbox" name="picturesLightbox">
+                        <label for="prompt-gen-pictures-lightbox" class="prompt-gen-inline-label">Include lightbox functionality</label>
+                        <p class="prompt-gen-field-note" id="prompt-gen-lightbox-wp-note">Note: Generally not needed for WordPress as it has built-in lightbox functionality.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <input type="checkbox" id="prompt-gen-include-slider" name="includeSlider">
+                    <label for="prompt-gen-include-slider" class="prompt-gen-inline-label">Include a Slider?</label>
+                </div>
+                <div id="prompt-gen-slider-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label for="prompt-gen-slider-type">Slider Type:</label>
+                    <select id="prompt-gen-slider-type" name="sliderType">
+                        <option value="basic_fade">Basic Fade Transition</option>
+                        <option value="basic_slide">Basic Slide Transition</option>
+                        <option value="carousel_multiple">Carousel (shows multiple items)</option>
+                        <option value="full_width_hero">Full-width Hero Slider</option>
+                    </select>
+                    
+                    <label>Slider Content:</label>
+                    <div class="prompt-gen-radio-group">
+                        <input type="radio" id="prompt-gen-slider-placeholder" name="sliderContentSource" value="placeholder" checked>
+                        <label for="prompt-gen-slider-placeholder">Use Placeholders</label>
+                        <input type="radio" id="prompt-gen-slider-url" name="sliderContentSource" value="url">
+                        <label for="prompt-gen-slider-url">Provide Image URLs</label>
+                    </div>
+                    
+                    <div id="prompt-gen-slider-placeholder-options" class="prompt-gen-sub-options">
+                        <label for="prompt-gen-slider-placeholder-count">Number of slides:</label>
+                        <input type="number" id="prompt-gen-slider-placeholder-count" name="sliderPlaceholderCount" min="1" value="3">
+                    </div>
+                    
+                    <div id="prompt-gen-slider-url-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                        <label for="prompt-gen-slider-urls">Slide Image URLs (one per line):</label>
+                        <textarea id="prompt-gen-slider-urls" name="sliderUrls" placeholder="https://example.com/slide1.jpg&#10;https://example.com/slide2.jpg"></textarea>
+                    </div>
+                    
+                    <label for="prompt-gen-slider-instructions">Additional Slider Instructions:</label>
+                    <textarea id="prompt-gen-slider-instructions" name="sliderInstructions" placeholder="e.g., Autoplay speed, navigation controls, captions..."></textarea>
+                </div>
+                
+                <div>
+                    <input type="checkbox" id="prompt-gen-include-gallery" name="includeGallery">
+                    <label for="prompt-gen-include-gallery" class="prompt-gen-inline-label">Include a Photo Gallery?</label>
+                </div>
+                <div id="prompt-gen-gallery-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label for="prompt-gen-gallery-type">Gallery Type:</label>
+                    <select id="prompt-gen-gallery-type" name="galleryType">
+                        <option value="grid">Grid Layout</option>
+                        <option value="masonry">Masonry Layout</option>
+                        <option value="lightbox">Lightbox Gallery (clickable thumbnails)</option>
+                    </select>
+                    
+                    <label>Gallery Content:</label>
+                    <div class="prompt-gen-radio-group">
+                        <input type="radio" id="prompt-gen-gallery-placeholder" name="galleryContentSource" value="placeholder" checked>
+                        <label for="prompt-gen-gallery-placeholder">Use Placeholders</label>
+                        <input type="radio" id="prompt-gen-gallery-url" name="galleryContentSource" value="url">
+                        <label for="prompt-gen-gallery-url">Provide Image URLs</label>
+                    </div>
+                    
+                    <div id="prompt-gen-gallery-placeholder-options" class="prompt-gen-sub-options">
+                        <label for="prompt-gen-gallery-placeholder-count">Number of images:</label>
+                        <input type="number" id="prompt-gen-gallery-placeholder-count" name="galleryPlaceholderCount" min="1" value="6">
+                    </div>
+                    
+                    <div id="prompt-gen-gallery-url-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                        <label for="prompt-gen-gallery-urls">Gallery Image URLs (one per line):</label>
+                        <textarea id="prompt-gen-gallery-urls" name="galleryUrls" placeholder="https://example.com/gallery1.jpg&#10;https://example.com/gallery2.jpg"></textarea>
+                    </div>
+                    
+                    <label for="prompt-gen-gallery-instructions">Additional Gallery Instructions:</label>
+                    <textarea id="prompt-gen-gallery-instructions" name="galleryInstructions" placeholder="e.g., Number of columns, hover effects, captions..."></textarea>
+                </div>
+
+                <div>
+                    <label for="prompt-gen-list-format">Lists Formatting:</label>
+                    <select id="prompt-gen-list-format" name="listFormat">
+                        <option value="default">Default Browser Styling</option>
+                        <option value="cards_tiles">Format as Cards/Tiles</option>
+                        <option value="simple_styled">Simple Custom Styling</option>
+                        <option value="stylish">Stylish Custom Formatting</option>
+                    </select>
+                    <div class="prompt-gen-sub-options">
+                        <label for="prompt-gen-list-custom-instructions">Custom List Instructions:</label>
+                        <input type="text" id="prompt-gen-list-custom-instructions" name="listCustomInstructions" placeholder="e.g., Icon per list item, specific card design">
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- CONTENT -->
+            <fieldset>
+                <legend>Content</legend>
+                <label for="prompt-gen-content-instructions">Content Instructions & Main Text:</label>
+                <p class="prompt-gen-field-note">Paste the content (text or bullet points) and/or detailed instructions for formatting, element inclusion, or anything not specified above. These instructions take precedence if they conflict with earlier settings.</p>
+                <textarea id="prompt-gen-content-instructions" name="contentInstructions" placeholder="Example: Create a section with a title 'Our Services', followed by three cards. Card 1: 'Web Design' - We create stunning websites. Card 2: 'SEO' - We rank you higher. Card 3: 'Consulting' - Expert advice."></textarea>
+
+                <label>Text Treatment:</label>
+                <div class="prompt-gen-radio-group">
+                    <input type="radio" id="prompt-gen-text-preserve" name="textTreatment" value="preserve" checked>
+                    <label for="prompt-gen-text-preserve">Preserve my text verbatim</label><br>
+                    <input type="radio" id="prompt-gen-text-improve-mistakes" name="textTreatment" value="improve_mistakes">
+                    <label for="prompt-gen-text-improve-mistakes">Improve obvious mistakes</label><br>
+                    <input type="radio" id="prompt-gen-text-improve-styling" name="textTreatment" value="improve_styling">
+                    <label for="prompt-gen-text-improve-styling">Improve styling (rewrites for tone/flow)</label><br>
+                </div>
+                <div id="prompt-gen-text-style-options" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label for="prompt-gen-text-style-tone">Text Style/Tone Instructions:</label>
+                    <select id="prompt-gen-text-style-tone" name="textStyleTone">
+                        <option value="professional">Professional</option>
+                        <option value="semi_professional">Semi-Professional</option>
+                        <option value="casual">Casual</option>
+                        <option value="semi_casual">Semi-Casual</option>
+                        <option value="warm">Warm</option>
+                        <option value="factual">Factual</option>
+                        <option value="informative">Informative</option>
+                        <option value="intimate">Intimate</option>
+                    </select>
+                    <label for="prompt-gen-text-style-reference">Text Style Reference (Optional):</label>
+                    <p class="prompt-gen-field-note">Paste a text fragment for style reference (content will be ignored).</p>
+                    <textarea id="prompt-gen-text-style-reference" name="textStyleReference" placeholder="Paste reference text here..."></textarea>
+                </div>
+                
+                <div class="prompt-gen-sub-options">
+                    <label for="prompt-gen-additional-text-instructions">Additional Text Treatment Instructions:</label>
+                    <textarea id="prompt-gen-additional-text-instructions" name="additionalTextInstructions" placeholder="Add any specific instructions for text formatting, voice, tone, or special handling not covered by the options above."></textarea>
+                </div>
+            </fieldset>
+            
+            <!-- RESPONSIVENESS AND ACCESSIBILITY -->
+            <fieldset>
+                <legend>Responsiveness and Accessibility</legend>
+                <div>
+                    <input type="checkbox" id="prompt-gen-mobile-first" name="mobileFirst" checked>
+                    <label for="prompt-gen-mobile-first" class="prompt-gen-inline-label">Mobile-First Design</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="prompt-gen-include-dark-mode" name="includeDarkMode">
+                    <label for="prompt-gen-include-dark-mode" class="prompt-gen-inline-label">Include Dark Mode with system preference detection</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="prompt-gen-include-high-contrast" name="includeHighContrast">
+                    <label for="prompt-gen-include-high-contrast" class="prompt-gen-inline-label">Include High Contrast Mode option</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="prompt-gen-include-font-sizing" name="includeFontSizing">
+                    <label for="prompt-gen-include-font-sizing" class="prompt-gen-inline-label">Include Font Size adjustment controls</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="prompt-gen-ensure-aria" name="ensureAria" checked>
+                    <label for="prompt-gen-ensure-aria" class="prompt-gen-inline-label">Ensure ARIA attributes for accessibility</label>
+                </div>
+                <div>
+                    <label for="prompt-gen-additional-accessibility">Additional Accessibility Requirements:</label>
+                    <textarea id="prompt-gen-additional-accessibility" name="additionalAccessibility" placeholder="Specify any additional accessibility features or compliance requirements..."></textarea>
+                </div>
+            </fieldset>
+
+            <!-- OTHER -->
+            <fieldset>
+                <legend>Other</legend>
+                <div>
+                    <input type="checkbox" id="prompt-gen-specific-styling" name="specificStyling">
+                    <label for="prompt-gen-specific-styling" class="prompt-gen-inline-label">Make code very specific (override theme styles)?</label>
+                    <p class="prompt-gen-field-note">If yes, all standard HTML tags (p, h1-h4, select, input, form, button etc.) within the generated container will be explicitly styled, and all elements will get specific class names.</p>
+                </div>
+                <div>
+                    <input type="checkbox" id="prompt-gen-add-important" name="addImportant">
+                    <label for="prompt-gen-add-important" class="prompt-gen-inline-label">Add "!important" to all CSS rules (unless it would conflict with JS functionality)</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="prompt-gen-set-class-name-prefix" name="setClassNamePrefix">
+                    <label for="prompt-gen-set-class-name-prefix" class="prompt-gen-inline-label">Set a class name prefix?</label>
+                </div>
+                <div id="prompt-gen-class-name-prefix-option" class="prompt-gen-sub-options prompt-gen-hidden">
+                    <label for="prompt-gen-class-name-prefix-input">Class Name Prefix:</label>
+                    <input type="text" id="prompt-gen-class-name-prefix-input" name="classNamePrefixInput" placeholder="e.g., my-component-">
+                </div>
+                <div>
+                    <label>Code Comments Level:</label>
+                    <div class="prompt-gen-radio-group">
+                        <input type="radio" id="prompt-gen-comments-none" name="commentsLevel" value="none" checked>
+                        <label for="prompt-gen-comments-none">No comments</label>
+                        <input type="radio" id="prompt-gen-comments-succinct" name="commentsLevel" value="succinct">
+                        <label for="prompt-gen-comments-succinct">Succinct comments</label>
+                        <input type="radio" id="prompt-gen-comments-extensive" name="commentsLevel" value="extensive">
+                        <label for="prompt-gen-comments-extensive">Extensive comments</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <button type="button" id="prompt-gen-generate-button">Generate Prompt</button>
+        </form>
+
+        <div id="prompt-gen-output-container" class="prompt-gen-hidden">
+            <div class="prompt-gen-output-header">
+                <h2>Generated Prompt</h2>
+                <button id="prompt-gen-copy-button" class="prompt-gen-copy-button">Copy Prompt</button>
+            </div>
+            <pre id="prompt-gen-output"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('prompt-gen-form');
+
+            // Conditional visibility toggles
+            const purposeRadios = document.querySelectorAll('input[name="purpose"]');
+            const wordpressOptions = document.getElementById('prompt-gen-wordpress-options');
+            const emailOptions = document.getElementById('prompt-gen-email-options');
+            
+            // Color and Font options
+            const defineColorCheckbox = document.getElementById('prompt-gen-define-color');
+            const colorOptions = document.getElementById('prompt-gen-color-options');
+            const defineFontCheckbox = document.getElementById('prompt-gen-define-font');
+            const fontOptions = document.getElementById('prompt-gen-font-options');
+            
+            const paletteChoiceRadios = document.querySelectorAll('input[name="paletteChoice"]');
+            const manualColorInputs = document.getElementById('prompt-gen-manual-color-inputs');
+            const mainAccentColor = document.getElementById('prompt-gen-main-accent-color');
+            const secondaryAccentColor = document.getElementById('prompt-gen-secondary-accent-color');
+            const textColorInput = document.getElementById('prompt-gen-text-color');
+            const singleColorForPaletteInput = document.getElementById('prompt-gen-single-color-for-palette');
+
+            const fontChoiceSelect = document.getElementById('prompt-gen-font-choice');
+            const googleFontOptions = document.getElementById('prompt-gen-google-font-options');
+            const allowFontAwesomeCheckbox = document.getElementById('prompt-gen-allow-font-awesome');
+            const fontAwesomeImportOption = document.getElementById('prompt-gen-font-awesome-import-option');
+
+            // Picture, Header, Slider and Gallery options
+            const headerTypeSelect = document.getElementById('prompt-gen-header-type');
+            const headerOptionsDiv = document.getElementById('prompt-gen-header-options');
+            const headerImageOptions = document.getElementById('prompt-gen-header-image-options');
+            const imageSourceRadios = document.querySelectorAll('input[name="imageSource"]');
+            const headerImageUrlInput = document.getElementById('prompt-gen-header-image-url-input');
+
+            const includePicturesCheckbox = document.getElementById('prompt-gen-include-pictures');
+            const picturesOptions = document.getElementById('prompt-gen-pictures-options');
+            const picturesSourceRadios = document.querySelectorAll('input[name="picturesSource"]');
+            const picturesPlaceholderOptions = document.getElementById('prompt-gen-pictures-placeholder-options');
+            const picturesUrlOptions = document.getElementById('prompt-gen-pictures-url-options');
+            const lightboxWpNote = document.getElementById('prompt-gen-lightbox-wp-note');
+
+            const includeSliderCheckbox = document.getElementById('prompt-gen-include-slider');
+            const sliderOptions = document.getElementById('prompt-gen-slider-options');
+            const sliderContentSourceRadios = document.querySelectorAll('input[name="sliderContentSource"]');
+            const sliderPlaceholderOptions = document.getElementById('prompt-gen-slider-placeholder-options');
+            const sliderUrlOptions = document.getElementById('prompt-gen-slider-url-options');
+            
+            const includeGalleryCheckbox = document.getElementById('prompt-gen-include-gallery');
+            const galleryOptions = document.getElementById('prompt-gen-gallery-options');
+            const galleryContentSourceRadios = document.querySelectorAll('input[name="galleryContentSource"]');
+            const galleryPlaceholderOptions = document.getElementById('prompt-gen-gallery-placeholder-options');
+            const galleryUrlOptions = document.getElementById('prompt-gen-gallery-url-options');
+            
+            // Text options
+            const textTreatmentRadios = document.querySelectorAll('input[name="textTreatment"]');
+            const textStyleOptions = document.getElementById('prompt-gen-text-style-options');
+            
+            // Other options
+            const setClassNamePrefixCheckbox = document.getElementById('prompt-gen-set-class-name-prefix');
+            const classNamePrefixOption = document.getElementById('prompt-gen-class-name-prefix-option');
+
+            // Color picker value displays
+            const colorPickers = [
+                {input: singleColorForPaletteInput, display: document.getElementById('prompt-gen-single-color-value')},
+                {input: mainAccentColor, display: document.getElementById('prompt-gen-main-accent-value')},
+                {input: secondaryAccentColor, display: document.getElementById('prompt-gen-secondary-accent-value')},
+                {input: textColorInput, display: document.getElementById('prompt-gen-text-color-value')}
+            ];
+
+            colorPickers.forEach(picker => {
+                picker.input.addEventListener('input', () => {
+                    picker.display.textContent = picker.input.value;
+                });
+            });
+
+            function toggleElement(element, show) {
+                if (element) element.classList.toggle('prompt-gen-hidden', !show);
+            }
+
+            function toggleDisabled(elements, disable) {
+                (Array.isArray(elements) ? elements : [elements]).forEach(el => {
+                    if (el) el.disabled = disable;
+                });
+            }
+            
+            // --- START: Event Listeners for UI changes ---
+            purposeRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const selectedPurpose = document.querySelector('input[name="purpose"]:checked').value;
+                    toggleElement(wordpressOptions, selectedPurpose === 'wordpress');
+                    toggleElement(emailOptions, selectedPurpose === 'email');
+                    
+                    // Show/hide WordPress-specific notes
+                    const isWordpress = selectedPurpose === 'wordpress';
+                    if (lightboxWpNote) {
+                        lightboxWpNote.style.display = isWordpress ? 'block' : 'none';
+                    }
+                    
+                    const isFullSiteOrApp = selectedPurpose === 'full_website' || selectedPurpose === 'web_app';
+                    toggleElement(headerOptionsDiv, !isFullSiteOrApp);
+                    if (isFullSiteOrApp) {
+                        headerTypeSelect.value = 'no';
+                        toggleElement(headerImageOptions, false);
+                        toggleElement(headerImageUrlInput, false);
+                    }
+                });
+            });
+
+            // Color options
+            defineColorCheckbox.addEventListener('change', (e) => {
+                toggleElement(colorOptions, e.target.checked);
+            });
+
+            // Font options
+            defineFontCheckbox.addEventListener('change', (e) => {
+                toggleElement(fontOptions, e.target.checked);
+            });
+
+            paletteChoiceRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const modelGenerates = document.getElementById('prompt-gen-model-palette').checked;
+                    toggleDisabled([mainAccentColor, secondaryAccentColor, textColorInput], modelGenerates);
+                    toggleDisabled(singleColorForPaletteInput, !modelGenerates);
+                });
+            });
+            toggleDisabled([mainAccentColor, secondaryAccentColor, textColorInput], document.getElementById('prompt-gen-model-palette').checked);
+            toggleDisabled(singleColorForPaletteInput, !document.getElementById('prompt-gen-model-palette').checked);
+
+            fontChoiceSelect.addEventListener('change', (e) => {
+                toggleElement(googleFontOptions, e.target.value === 'google');
+            });
+            
+            allowFontAwesomeCheckbox.addEventListener('change', (e) => {
+                 toggleElement(fontAwesomeImportOption, e.target.checked);
+            });
+            toggleElement(fontAwesomeImportOption, allowFontAwesomeCheckbox.checked);
+
+            // Header options
+            headerTypeSelect.addEventListener('change', (e) => {
+                toggleElement(headerImageOptions, e.target.value === 'hero_image');
+                if (e.target.value !== 'hero_image') {
+                     toggleElement(headerImageUrlInput, false);
+                     if(document.getElementById('prompt-gen-image-placeholder')) document.getElementById('prompt-gen-image-placeholder').checked = true;
+                }
+            });
+
+            imageSourceRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    toggleElement(headerImageUrlInput, document.getElementById('prompt-gen-image-url').checked);
+                });
+            });
+
+            // Pictures options
+            includePicturesCheckbox.addEventListener('change', (e) => {
+                toggleElement(picturesOptions, e.target.checked);
+            });
+            
+            picturesSourceRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const isUrlSource = document.getElementById('prompt-gen-pictures-url').checked;
+                    toggleElement(picturesPlaceholderOptions, !isUrlSource);
+                    toggleElement(picturesUrlOptions, isUrlSource);
+                });
+            });
+
+            // Slider options
+            includeSliderCheckbox.addEventListener('change', (e) => {
+                toggleElement(sliderOptions, e.target.checked);
+            });
+            
+            sliderContentSourceRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const isUrlSource = document.getElementById('prompt-gen-slider-url').checked;
+                    toggleElement(sliderPlaceholderOptions, !isUrlSource);
+                    toggleElement(sliderUrlOptions, isUrlSource);
+                });
+            });
+            
+            // Gallery options
+            includeGalleryCheckbox.addEventListener('change', (e) => {
+                toggleElement(galleryOptions, e.target.checked);
+            });
+            
+            galleryContentSourceRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const isUrlSource = document.getElementById('prompt-gen-gallery-url').checked;
+                    toggleElement(galleryPlaceholderOptions, !isUrlSource);
+                    toggleElement(galleryUrlOptions, isUrlSource);
+                });
+            });
+
+            // Text options
+            textTreatmentRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    toggleElement(textStyleOptions, document.getElementById('prompt-gen-text-improve-styling').checked);
+                });
+            });
+
+            // Other options
+            setClassNamePrefixCheckbox.addEventListener('change', (e) => {
+                toggleElement(classNamePrefixOption, e.target.checked);
+            });
+            // --- END: Event Listeners for UI changes ---
+
+            // Helper function to process full HTML reference code
+            function processFullHtmlReference(htmlString) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlString, 'text/html');
+
+                let bodyHtml = '';
+                if (doc.body) {
+                    // Clone the body to manipulate it without affecting the original parsed 'doc'
+                    const tempBody = doc.body.cloneNode(true); 
+                    
+                    // Remove script tags from the cloned body content
+                    tempBody.querySelectorAll('script').forEach(script => script.remove());
+                    
+                    bodyHtml = tempBody.innerHTML;
+                }
+
+                let styleTagContent = '';
+                // Extract styles from ALL <style> tags in the document (head and body)
+                doc.querySelectorAll('style').forEach(styleElement => {
+                    styleTagContent += styleElement.innerHTML.trim() + '\n\n/* --- End of a style block --- */\n\n';
+                });
+
+                return {
+                    processedBodyHtml: bodyHtml.trim(),
+                    extractedStyleTagContent: styleTagContent.trim()
+                };
+            }
+
+            // Copy Prompt Button
+            const copyButton = document.getElementById('prompt-gen-copy-button');
+            const outputElement = document.getElementById('prompt-gen-output');
+            
+            copyButton.addEventListener('click', function() {
+                if (outputElement.textContent) {
+                    navigator.clipboard.writeText(outputElement.textContent)
+                        .then(() => {
+                            const originalText = copyButton.textContent;
+                            copyButton.textContent = 'Copied!';
+                            setTimeout(() => {
+                                copyButton.textContent = originalText;
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy: ', err);
+                            alert('Failed to copy to clipboard. Please try again or manually select and copy the text.');
+                        });
+                }
+            });
+
+            // Generate Prompt Button
+            const generateButton = document.getElementById('prompt-gen-generate-button');
+            const outputContainer = document.getElementById('prompt-gen-output-container');
+
+            generateButton.addEventListener('click', () => {
+                const formData = new FormData(form);
+                const data = {};
+                for (let [key, value] of formData.entries()) {
+                    if (form.elements[key] && form.elements[key].type === 'checkbox') {
+                        data[key] = form.elements[key].checked;
+                    } else {
+                        data[key] = value;
+                    }
+                }
+
+                let prompt = "Generate code based on the following specifications that were generated from a form filled in by a person. Follow each instruction carefully and balance all requirements to create the best possible solution:\n\n";
+
+                // --- PURPOSE ---
+                prompt += "## PURPOSE OF CODE GENERATION:\n";
+                const purpose = data.purpose;
+                if (purpose === 'html_css_js') prompt += "- Type: General HTML, CSS, and JavaScript (if JS is necessary/useful) component/snippet.\n";
+                if (purpose === 'wordpress') {
+                    prompt += `- Type: Wordpress Element (${data.wordpressType}).\n`;
+                    prompt += "- Instruction: Output a single block of code suitable for a WordPress custom HTML widget or block. Exclude <html>, <head>, <body> tags etc. as they are not needed here. The code should work within the WordPress ecosystem and follow WordPress coding best practices.\n";
+                }
+                if (purpose === 'email') {
+                    prompt += `- Type: Email (${data.emailType}).\n`;
+                    prompt += "- Instruction: Ensure compatibility with major email clients. Use inline CSS and table-based layouts where appropriate for maximum compatibility. Avoid advanced CSS features that are inconsistently supported in email clients.\n";
+                }
+                if (purpose === 'full_website' || purpose === 'web_app') {
+                    prompt += `- Type: ${purpose === 'full_website' ? 'Full Website' : 'Full Web App'}.\n`;
+                    prompt += "- Instruction: Include complete structure with semantically correct HTML5 tags. Create relevant SEO meta tags in the <head> (title, description, keywords) derived from the provided content. Structure for good SEO practices (semantic HTML, logical heading structure). Ensure all necessary components for a complete site solution.\n";
+                }
+                 if (purpose === 'web_page') {
+                    prompt += "- Type: Web Page for an existing website.\n";
+                    prompt += "- Instruction: Generate the content for the <body> tag that can be inserted into an existing site. Create self-contained styles that won't conflict with parent site. If SEO aspects are relevant for this specific page, consider how to advise on title/meta description based on content.\n";
+                }
+                prompt += "\n";
+
+                // --- STYLING ---
+                prompt += "## STYLING:\n";
+                if (data.referenceCode && data.referenceCode.trim() !== '') {
+                    const refCode = data.referenceCode.trim();
+                    // Check if it looks like a full HTML document ("View Source" output)
+                    if (refCode.toLowerCase().includes('<html') && (refCode.toLowerCase().includes('<body') || refCode.toLowerCase().includes('</head>'))) {
+                        const processed = processFullHtmlReference(refCode);
+                        prompt += `- Reference "View Source" Output Provided:\n`;
+                        if (processed.extractedStyleTagContent) {
+                            prompt += `  - Internal CSS from <style> tags (from head and body):\n\`\`\`css\n${processed.extractedStyleTagContent}\n\`\`\`\n`;
+                        } else {
+                            prompt += `  - No internal <style> tags found or extracted from the reference.\n`;
+                        }
+                        if (processed.processedBodyHtml) {
+                            prompt += `  - Body HTML Structure (scripts removed, other non-renderable head elements like meta/link are excluded from this body extraction):\n\`\`\`html\n${processed.processedBodyHtml}\n\`\`\`\n`;
+                        } else {
+                            prompt += `  - Body HTML could not be reliably extracted from the reference.\n`;
+                        }
+                        prompt += `  - LLM Instruction for this reference: Analyze the provided HTML structure and any accompanying internal CSS as a strong style reference. Focus on elements likely visible on a page: their colors, fonts, spacing, layout tendencies, and overall component appearance. Be aware that styles from external stylesheets (<link rel="stylesheet">) and JavaScript-applied styles are NOT included in this extraction. Infer the overall style and apply it to the new code you generate.\n`;
+                    } else {
+                        // It's likely a snippet or just CSS
+                        prompt += `- Reference Code Snippet Provided: Yes. Analyze the following code for style (colors, fonts, layout tendencies, component styling) and apply similar styling. This could be HTML, CSS, or a mix. Extract key style elements rather than a wholesale copy.\n\`\`\`\n${refCode}\n\`\`\`\n`;
+                    }
+                } else {
+                    prompt += "- No reference code provided. Create styling based on the instructions below.\n";
+                }
+
+                prompt += `- General Style: ${data.generalStyle}.\n`;
+                prompt += `  - For "${data.generalStyle}" style, here's what that means:\n`;
+                if (data.generalStyle === 'modern') {
+                    prompt += `    - Clean, minimalist approach with ample whitespace\n    - Subtle shadows and rounded corners where appropriate\n    - Smooth transitions/animations for interactive elements\n    - Contemporary typography with good readability\n    - Flat design elements with subtle depth cues\n`;
+                } else if (data.generalStyle === 'retro') {
+                    prompt += `    - Nostalgic design elements from a specific era (70s, 80s, 90s, etc.)\n    - Typography characteristic of the period\n    - Color schemes reminiscent of vintage design\n    - Possibly include design artifacts like mild distressing or analog-inspired elements\n`;
+                } else if (data.generalStyle === 'visually_striking') {
+                    prompt += `    - Bold, high-contrast design elements\n    - Attention-grabbing typography or color combinations\n    - Creative layout that catches the eye\n    - May include unusual or unexpected visual elements\n    - Strong visual hierarchy to direct attention\n`;
+                } else if (data.generalStyle === 'professional') {
+                    prompt += `    - Clean, business-appropriate aesthetics\n    - Subdued color palette with strategic accent colors\n    - Consistent, organized layout structure\n    - Typography focused on clarity and readability\n    - Polished, refined interactive elements\n`;
+                }
+                
+                if (data.additionalStyle && data.additionalStyle.trim() !== '') {
+                    prompt += `- Additional General Style Instructions: ${data.additionalStyle.trim()}.\n`;
+                }
+
+                // Color settings
+                if (data.defineColor) {
+                    prompt += "- Custom Colors Defined:\n";
+                    if (data.paletteChoice === 'model_generates') {
+                        prompt += `  - Palette: Generate a harmonious color palette based on the primary color: ${data.singleColorForPalette}.\n`;
+                        prompt += `  - Create a coordinated scheme with appropriate complementary and accent colors.\n`;
+                        prompt += `  - Text Color: Choose an appropriate text color for readability against the generated palette, ensuring WCAG AA or better contrast ratios.\n`;
+                    } else {
+                        prompt += `  - Main Accent Color: ${data.mainAccentColor} - Use for primary UI elements and key visual anchors.\n`;
+                        prompt += `  - Secondary Accent Color: ${data.secondaryAccentColor} - Use for supporting elements, highlights, or to create visual interest.\n`;
+                        prompt += `  - Text Color: ${data.textColor} - Use for main body text and ensure appropriate contrast with background elements.\n`;
+                    }
+                }
+
+                // Font settings
+                if (data.defineFont) {
+                    prompt += "- Custom Fonts Defined:\n";
+                    prompt += `  - Font Choice: ${data.fontChoice}.\n`;
+                    if (data.fontChoice === 'standard') {
+                        prompt += `    - Use widely-supported system fonts like Arial, Helvetica, Verdana, etc. Consider using modern font stacks for better typography.\n`;
+                    }
+                    if (data.fontChoice === 'google' && data.googleFontName && data.googleFontName.trim() !== '') {
+                        prompt += `    - Google Font(s): ${data.googleFontName.trim()}.\n`;
+                        if (data.includeGoogleFontImport) {
+                            prompt += "    - Instruction: Include CSS @import or <link> tag for the specified Google Font(s). Use the most efficient way to load these fonts.\n";
+                        }
+                    }
+                    if (data.allowFontAwesome) {
+                        prompt += "  - Font Awesome: Allowed.\n";
+                        prompt += "    - You may use Font Awesome icons where appropriate to enhance the design.\n";
+                        if (data.importFontAwesome) {
+                            prompt += "    - Instruction: If Font Awesome icons are used, include the necessary CDN link for Font Awesome (prefer the latest version).\n";
+                        }
+                    } else {
+                        prompt += "  - Font Awesome: Not allowed. Use alternative methods for icons if needed (SVG, Unicode, etc.).\n";
+                    }
+                }
+                prompt += "\n";
+
+                // --- COMPOSITION / ELEMENTS ---
+                prompt += "## COMPOSITION / ELEMENTS:\n";
+                let compositionSpecified = false;
+                const isFullSiteOrApp = purpose === 'full_website' || purpose === 'web_app';
+                if (!isFullSiteOrApp && data.headerType !== 'no') {
+                    compositionSpecified = true;
+                    prompt += `- Header/Title: ${data.headerType}.\n`;
+                    if (data.headerType === 'title_only') {
+                        prompt += `  - Include a simple, well-styled title element appropriate for the purpose and content.\n`;
+                    } else if (data.headerType === 'simple_header') {
+                        prompt += `  - Create a header section with title and potentially supporting elements like subtitles or navigation as appropriate.\n`;
+                    } else if (data.headerType === 'hero_image') {
+                        prompt += `  - Create a hero section with title overlaid on a background image.\n`;
+                        prompt += `  - Hero Image Source: ${data.imageSource}.\n`;
+                        if (data.imageSource === 'url' && data.headerImageUrlInput && data.headerImageUrlInput.trim() !== '') {
+                            prompt += `    - Image URL: ${data.headerImageUrlInput.trim()}.\n`;
+                        } else {
+                            prompt += `    - Image URL: Use a relevant placeholder image (e.g., from placeholder.com or similar, with appropriate dimensions). Suggest a specific placeholder that would work well for the content.\n`;
+                        }
+                    }
+                }
+                
+                if (data.tocType !== 'no') {
+                    compositionSpecified = true;
+                    prompt += `- Internal Menu/TOC: ${data.tocType}. Base on heading IDs if applicable.\n`;
+                    if (data.tocType === 'top') {
+                        prompt += `  - Create a table of contents/internal navigation menu positioned at the top of the content.\n`;
+                        prompt += `  - Each item should link to the corresponding section via heading IDs.\n`;
+                    } else if (data.tocType === 'top_scrolling') {
+                        prompt += `  - Create a table of contents/internal navigation menu that remains visible as the user scrolls down.\n`;
+                        prompt += `  - Use position:sticky or similar approach to keep it visible while scrolling.\n`;
+                    } else if (data.tocType === 'floating_left') {
+                        prompt += `  - Create a floating table of contents/internal navigation menu positioned on the left side of the main content.\n`;
+                        prompt += `  - Ensure it adjusts appropriately on mobile devices (possibly relocating to top).\n`;
+                    }
+                }
+                
+                // Pictures section
+                if (data.includePictures) {
+                    compositionSpecified = true;
+                    prompt += `- Pictures: Include pictures/images.\n`;
+                    prompt += `  - Source: ${data.picturesSource === 'placeholder' ? 'Use placeholder images' : 'Use provided URLs'}.\n`;
+                    
+                    if (data.picturesSource === 'placeholder') {
+                        prompt += `  - Number of placeholders: ${data.picturesPlaceholderCount}.\n`;
+                        prompt += `  - Use appropriate placeholder services (like placeholder.com, picsum.photos, etc.) with dimensions that suit the design.\n`;
+                    } else if (data.picturesUrls && data.picturesUrls.trim() !== '') {
+                        const urls = data.picturesUrls.trim().split('\n').filter(url => url.trim() !== '');
+                        prompt += `  - Image URLs (${urls.length}):\n`;
+                        urls.forEach(url => {
+                            prompt += `    - ${url.trim()}\n`;
+                        });
+                    }
+                    
+                    prompt += `  - Display Method: ${data.picturesDisplayMethod === 'as_is' ? 'Add as regular images' : 'Use as background in styled frames'}.\n`;
+                    if (data.picturesDisplayMethod === 'as_is') {
+                        prompt += `    - Insert images as standard <img> elements with appropriate alt text and styling.\n`;
+                    } else {
+                        prompt += `    - Create styled frame elements (like divs) that use the images as CSS backgrounds.\n`;
+                        prompt += `    - Consider how to handle the alt text equivalent for accessibility in this case.\n`;
+                    }
+                    
+                    if (data.picturesLightbox) {
+                        prompt += `  - Include lightbox functionality: Yes.\n`;
+                        prompt += `    - Create a simple, lightweight lightbox implementation that shows larger versions of images when clicked.\n`;
+                        if (purpose === 'wordpress') {
+                            prompt += `    - Note: Although WordPress typically has built-in lightbox functionality, provide a simple implementation as requested.\n`;
+                        }
+                    }
+                }
+                
+                // Slider section
+                if (data.includeSlider) {
+                    compositionSpecified = true;
+                    prompt += `- Slider: Include a slider.\n`;
+                    prompt += `  - Type: ${data.sliderType}.\n`;
+                    
+                    if (data.sliderType === 'basic_fade') {
+                        prompt += `    - Create a simple slider with fade transitions between slides.\n`;
+                    } else if (data.sliderType === 'basic_slide') {
+                        prompt += `    - Create a slider with horizontal slide transitions between slides.\n`;
+                    } else if (data.sliderType === 'carousel_multiple') {
+                        prompt += `    - Create a carousel-style slider that shows multiple items at once, with appropriate navigation.\n`;
+                    } else if (data.sliderType === 'full_width_hero') {
+                        prompt += `    - Create a full-width hero slider with large, impactful slides.\n`;
+                    }
+                    
+                    prompt += `  - Content Source: ${data.sliderContentSource === 'placeholder' ? 'Use placeholder images' : 'Use provided URLs'}.\n`;
+                    
+                    if (data.sliderContentSource === 'placeholder') {
+                        prompt += `  - Number of slides: ${data.sliderPlaceholderCount}.\n`;
+                        prompt += `  - Use appropriate placeholder services with dimensions that suit the slider type.\n`;
+                    } else if (data.sliderUrls && data.sliderUrls.trim() !== '') {
+                        const urls = data.sliderUrls.trim().split('\n').filter(url => url.trim() !== '');
+                        prompt += `  - Slide Image URLs (${urls.length}):\n`;
+                        urls.forEach(url => {
+                            prompt += `    - ${url.trim()}\n`;
+                        });
+                    }
+                    
+                    prompt += `  - Implement necessary JavaScript functionality for the slider to work properly.\n`;
+                    prompt += `  - Include navigation controls (previous/next buttons and possibly dots/indicators).\n`;
+                    
+                    if (data.sliderInstructions && data.sliderInstructions.trim() !== '') {
+                        prompt += `  - Custom Instructions: ${data.sliderInstructions.trim()}.\n`;
+                    }
+                }
+                
+                // Gallery section
+                if (data.includeGallery) {
+                    compositionSpecified = true;
+                    prompt += `- Photo Gallery: Include a photo gallery.\n`;
+                    prompt += `  - Type: ${data.galleryType}.\n`;
+                    
+                    if (data.galleryType === 'grid') {
+                        prompt += `    - Create a uniform grid layout of images.\n`;
+                    } else if (data.galleryType === 'masonry') {
+                        prompt += `    - Create a masonry-style layout that accommodates different image dimensions.\n`;
+                    } else if (data.galleryType === 'lightbox') {
+                        prompt += `    - Create a gallery of thumbnails that open larger versions in a lightbox when clicked.\n`;
+                    }
+                    
+                    prompt += `  - Content Source: ${data.galleryContentSource === 'placeholder' ? 'Use placeholder images' : 'Use provided URLs'}.\n`;
+                    
+                    if (data.galleryContentSource === 'placeholder') {
+                        prompt += `  - Number of images: ${data.galleryPlaceholderCount}.\n`;
+                        prompt += `  - Use diverse placeholder images to demonstrate the gallery's capabilities.\n`;
+                    } else if (data.galleryUrls && data.galleryUrls.trim() !== '') {
+                        const urls = data.galleryUrls.trim().split('\n').filter(url => url.trim() !== '');
+                        prompt += `  - Gallery Image URLs (${urls.length}):\n`;
+                        urls.forEach(url => {
+                            prompt += `    - ${url.trim()}\n`;
+                        });
+                    }
+                    
+                    if (data.galleryInstructions && data.galleryInstructions.trim() !== '') {
+                        prompt += `  - Custom Instructions: ${data.galleryInstructions.trim()}.\n`;
+                    }
+                }
+                
+                // List formatting
+                if (data.listFormat !== 'default') {
+                    compositionSpecified = true;
+                    prompt += `- Lists Formatting: ${data.listFormat}.\n`;
+                    
+                    if (data.listFormat === 'cards_tiles') {
+                        prompt += `  - Transform list items into card/tile elements with distinct visual boundaries.\n`;
+                    } else if (data.listFormat === 'simple_styled') {
+                        prompt += `  - Apply basic custom styling to list elements while maintaining the list structure.\n`;
+                    } else if (data.listFormat === 'stylish') {
+                        prompt += `  - Apply elaborate styling to list elements with custom bullets, animations, or other visual enhancements.\n`;
+                    }
+                    
+                    if (data.listCustomInstructions && data.listCustomInstructions.trim() !== '') {
+                        prompt += `  - Custom List Instructions: ${data.listCustomInstructions.trim()}.\n`;
+                    }
+                }
+                
+                if (!compositionSpecified) {
+                    prompt += "- No specific pre-defined elements selected. Refer to Content Instructions for any element requirements.\n";
+                    prompt += "- Create an appropriate structure based on the content and purpose of the code.\n";
+                }
+                prompt += "\n";
+
+                // --- CONTENT ---
+                prompt += "## CONTENT:\n";
+                if (data.contentInstructions && data.contentInstructions.trim() !== '') {
+                    prompt += `- Main Content & Instructions:\n\`\`\`\n${data.contentInstructions.trim()}\n\`\`\`\n`;
+                    prompt += "- IMPORTANT: If instructions in the 'Main Content & Instructions' section above conflict with choices/styles defined earlier, the 'Main Content & Instructions' take precedence.\n";
+                } else {
+                    prompt += "- No specific content or detailed instructions provided. Generate placeholder content that's appropriate for the purpose and structure of the code.\n";
+                }
+                
+                // Text treatment
+                prompt += `- Text Treatment: ${data.textTreatment.replace('_', ' ')}.\n`;
+                if (data.textTreatment === 'preserve') {
+                    prompt += `  - Explanation: Keep the exact wording provided in the content instructions without altering grammar, style, or phrasing. HTML formatting may be added, but the text itself should remain unchanged.\n`;
+                } else if (data.textTreatment === 'improve_mistakes') {
+                    prompt += `  - Explanation: Correct obvious typos, grammatical errors, and formatting issues while preserving the overall message, tone, and style of the original text. Do not rewrite or significantly rephrase content.\n`;
+                } else if (data.textTreatment === 'improve_styling') {
+                    prompt += `  - Explanation: Feel free to rephrase, restructure, and enhance the provided text to improve flow, clarity, and impact while maintaining the core message. This may include reorganizing sentences, improving word choice, and adjusting tone.\n`;
+                    prompt += `  - Desired Text Style/Tone: ${data.textStyleTone.replace('_', ' ')}.\n`;
+                    
+                    if (data.textStyleReference && data.textStyleReference.trim() !== '') {
+                        prompt += `  - Text Style Reference (use for style/tone only, not content):\n\`\`\`\n${data.textStyleReference.trim()}\n\`\`\`\n`;
+                        prompt += `  - Analyze the writing style, voice, and tone of the reference text above and apply similar qualities to your content revisions.\n`;
+                    }
+                }
+                
+                // Additional text treatment instructions
+                if (data.additionalTextInstructions && data.additionalTextInstructions.trim() !== '') {
+                    prompt += `- Additional Text Treatment Instructions:\n${data.additionalTextInstructions.trim()}\n`;
+                }
+                prompt += "\n";
+                
+                // --- RESPONSIVENESS AND ACCESSIBILITY ---
+                prompt += "## RESPONSIVENESS AND ACCESSIBILITY:\n";
+                if (data.mobileFirst) {
+                    prompt += "- Use Mobile-First Design approach.\n";
+                    prompt += "  - Explanation: Start with styles for small screens and use media queries to enhance the design for larger screens. This ensures good performance and usability on mobile devices.\n";
+                } else {
+                    prompt += "- Use a standard responsive design approach that works well across devices.\n";
+                }
+                
+                if (data.includeDarkMode) {
+                    prompt += "- Include Dark Mode with system preference detection (using prefers-color-scheme media query).\n";
+                    prompt += "  - Create alternate color schemes for light and dark modes that maintain readability and visual appeal.\n";
+                }
+                
+                if (data.includeHighContrast) {
+                    prompt += "- Include High Contrast Mode option.\n";
+                    prompt += "  - Add a toggle or detect prefers-contrast media query to provide a high-contrast version of the design for users with visual impairments.\n";
+                }
+                
+                if (data.includeFontSizing) {
+                    prompt += "- Include Font Size adjustment controls (buttons or UI elements to increase/decrease text size).\n";
+                    prompt += "  - Create simple controls that allow users to adjust text size without breaking the layout.\n";
+                }
+                
+                if (data.ensureAria) {
+                    prompt += "- Ensure proper ARIA attributes are included for accessibility.\n";
+                    prompt += "  - Use appropriate ARIA roles, states, and properties to make interactive elements accessible to screen readers and other assistive technologies.\n";
+                    prompt += "  - Ensure sufficient color contrast, keyboard navigability, and proper focus management.\n";
+                }
+                
+                if (data.additionalAccessibility && data.additionalAccessibility.trim() !== '') {
+                    prompt += `- Additional Accessibility Requirements:\n${data.additionalAccessibility.trim()}\n`;
+                }
+                prompt += "\n";
+
+                // --- OTHER --- 
+                prompt += "## OTHER REQUIREMENTS:\n";
+                if (data.specificStyling) {
+                    prompt += "- Style all standard HTML tags (e.g., p, h1-h4, ul, ol, li, a, select, input, form, button) very specifically within the generated component's main container class. This is to override possibly existing theme styles. All elements should be given specific class names.\n";
+                    prompt += "  - Explanation: Create a self-contained styling environment that won't be affected by external CSS. Use specificity and unique class names to ensure styles apply correctly.\n";
+                }
+                
+                if (data.addImportant) {
+                    prompt += "- Add '!important' to all CSS rules, unless it would conflict with JavaScript functionality (e.g., transition properties, animations, or properties manipulated by JS).\n";
+                    prompt += "  - Explanation: This ensures styles override any existing CSS from parent themes or stylesheets, but avoid using !important where it would break dynamic functionality.\n";
+                }
+                
+                if (data.setClassNamePrefix) {
+                    if (data.classNamePrefixInput && data.classNamePrefixInput.trim() !== '') {
+                        prompt += `- Class Name Prefix: Use "${data.classNamePrefixInput.trim()}" for all CSS classes.\n`;
+                        prompt += `  - Explanation: This creates a namespace for the styles to prevent conflicts with existing CSS classes.\n`;
+                    } else {
+                        prompt += "- Use class names and/or IDs with names derived from the content.\n";
+                    }
+                } else {
+                    prompt += "- Use class names and/or IDs with names derived from the content.\n";
+                    prompt += "  - Choose semantic, descriptive class names that reflect the purpose of each element.\n";
+                }
+                
+                // Code comments
+                const commentsLevel = data.commentsLevel;
+                if (commentsLevel === 'none') {
+                    prompt += "- Code Comments: None or minimal.\n";
+                    prompt += "  - Do not add comments to the code except where absolutely necessary for clarity.\n";
+                } else if (commentsLevel === 'succinct') {
+                    prompt += "- Code Comments: Succinct.\n";
+                    prompt += "  - Add brief, helpful comments for major sections and non-obvious functionality.\n";
+                    prompt += "  - Keep comments concise and focused on explaining 'why' rather than 'what' when the code isn't self-explanatory.\n";
+                } else if (commentsLevel === 'extensive') {
+                    prompt += "- Code Comments: Extensive.\n";
+                    prompt += "  - Add detailed comments throughout the code, explaining the purpose of sections, functions, and key style rules.\n";
+                    prompt += "  - Include explanations of design decisions and how different parts work together.\n";
+                }
+                prompt += "\n";
+                
+                prompt += "## FINAL OUTPUT EXPECTATIONS:\n";
+                prompt += "- Provide HTML, CSS, and JavaScript in a SINGLE code block with CSS between <style> tags and JS between <script> tags.\n";
+                prompt += "- Add comments according to the specified commenting level.\n";
+                prompt += "- Aim for an accessible, responsive design following HTML, CSS and JS best practices.\n";
+                prompt += "- Ensure all functionality works as expected without external dependencies unless specifically included.\n";
+                prompt += "- Consider the balance between aesthetics, performance, and maintainability in your implementation.\n";
+                prompt += "- Test the logic of interactive elements mentally before providing the final code.\n";
+				
+                outputElement.textContent = prompt;
+                toggleElement(outputContainer, true);
+            });
+
+            // Trigger initial state for conditional UI
+            document.querySelectorAll('input[name="purpose"]').forEach(r => { if(r.checked) r.dispatchEvent(new Event('change'))});
+            defineColorCheckbox.dispatchEvent(new Event('change'));
+            defineFontCheckbox.dispatchEvent(new Event('change'));
+            document.querySelectorAll('input[name="paletteChoice"]').forEach(r => { if(r.checked) r.dispatchEvent(new Event('change'))});
+            fontChoiceSelect.dispatchEvent(new Event('change'));
+            allowFontAwesomeCheckbox.dispatchEvent(new Event('change'));
+            headerTypeSelect.dispatchEvent(new Event('change'));
+            document.querySelectorAll('input[name="imageSource"]').forEach(r => { if(r.checked) r.dispatchEvent(new Event('change'))});
+            includePicturesCheckbox.dispatchEvent(new Event('change'));
+            document.querySelectorAll('input[name="picturesSource"]').forEach(r => { if(r.checked) r.dispatchEvent(new Event('change'))});
+            includeSliderCheckbox.dispatchEvent(new Event('change'));
+            document.querySelectorAll('input[name="sliderContentSource"]').forEach(r => { if(r.checked) r.dispatchEvent(new Event('change'))});
+            includeGalleryCheckbox.dispatchEvent(new Event('change'));
+            document.querySelectorAll('input[name="galleryContentSource"]').forEach(r => { if(r.checked) r.dispatchEvent(new Event('change'))});
+            textTreatmentRadios.forEach(r => { if(r.checked) r.dispatchEvent(new Event('change'))});
+            setClassNamePrefixCheckbox.dispatchEvent(new Event('change'));
+        });
+    </script>
+</body>
+</html>
