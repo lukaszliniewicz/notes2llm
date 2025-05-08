@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JJR4734MHM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-JJR4734MHM');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Notes2LLM - HTML/CSS/JS Editor for LLM-Generated Code</title>
@@ -1245,6 +1254,51 @@ input:checked + .n2l-slider-switch:before {
         flex-direction: column;
     }
 }
+
+/* Getting Started Section */
+.n2l-getting-started {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0;
+    padding: 12px;
+    margin: 15px 0;
+    font-size: 0.9em;
+	margin-top: 0;
+}
+
+.n2l-getting-started h4 {
+    margin: 0 0 8px 0;
+    color: #384D68;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.n2l-getting-started p {
+    margin: 0 0 8px 0;
+    color: #555;
+}
+
+.n2l-getting-started ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.n2l-getting-started li {
+    margin-bottom: 5px;
+    color: #555;
+    line-height: 1.4;
+}
+
+.n2l-getting-started li:last-child {
+    margin-bottom: 0;
+}
+
+.n2l-getting-started strong {
+    color: #384D68;
+    font-weight: 500;
+}
+
 </style>
 <!-- Include Font Awesome for Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1636,6 +1690,18 @@ input:checked + .n2l-slider-switch:before {
 	<img src="logo.png" alt="Notes2LLM Logo" class="n2l-sidebar-logo">
 	<h3>Notes2LLM</h3>
 </div>
+
+<!-- New getting started section -->
+<div class="n2l-getting-started">
+	<h4>Getting Started</h4>
+	<p>To begin editing:</p>
+	<ul>
+		<li><strong>Click</strong> on any element to select and edit it</li>
+		<li>Enter <strong>Preview Mode</strong> to interact with dynamic content (expandable sections, lightboxes, etc.)</li>
+		<li>Exit Preview Mode to continue editing newly revealed elements</li>
+	</ul>
+</div>
+
 <button id="n2l-get-code-btn" class="secondary">Get Processed Code</button>
 <button id="n2l-preview-mode-btn">Enter Preview Mode</button>
 
@@ -1889,6 +1955,9 @@ input:checked + .n2l-slider-switch:before {
 	const cssManager = new Notes2LLMCssManager(); // Create CSS Manager
     let commentedElements = new Map(); // Map: element -> { commentNode: Node, iconElement: HTMLElement, position: 'above' | 'below' }
 
+    // Global state for tracking pre-preview attributes and IDs
+    let originalElementsSnapshot = new Map();
+    let nextN2LId = 1; // Counter for unique IDs
 
 	// Example code for demonstration
 	const exampleCode = `
@@ -1928,7 +1997,7 @@ input:checked + .n2l-slider-switch:before {
   </main>
   
   <footer>
-	<p>&copy; 2025 Example Page</p>
+	<p>© 2025 Example Page</p>
   </footer>
 </div>
 
@@ -2025,6 +2094,47 @@ footer {
   }
 <\/script>
 `;
+    // Helper function to ensure an element has a data-n2l-id
+    function ensureN2LId(element) {
+        // Ensure element is a valid HTML element and not e.g. a text node
+        if (!element || typeof element.setAttribute !== 'function') {
+            return;
+        }
+        if (!element.hasAttribute('data-n2l-id')) {
+            element.setAttribute('data-n2l-id', `n2l-id-${nextN2LId++}`);
+        }
+    }
+
+    // Helper function to assign data-n2l-id to all elements under a root
+    function assignN2LIdsToDom(rootNode) {
+        if (!rootNode || typeof rootNode.querySelectorAll !== 'function') return;
+
+        // If rootNode itself is an element (e.g. newElement in applyHtmlChanges), it needs an ID.
+        if (rootNode.nodeType === Node.ELEMENT_NODE) {
+            ensureN2LId(rootNode);
+        }
+        // Assign IDs to all children
+        rootNode.querySelectorAll('*').forEach(el => ensureN2LId(el));
+    }
+
+    // Captures the state of elements (their classes and inline styles) before JS interactions in preview mode
+    function capturePreviewStartState() {
+        if (!iframeDoc || !iframeDoc.body) return;
+        originalElementsSnapshot.clear(); // Clear previous snapshot
+
+        // Query for all elements that have our tracking ID
+        const elements = iframeDoc.body.querySelectorAll('[data-n2l-id]');
+        elements.forEach(el => {
+            const id = el.getAttribute('data-n2l-id');
+            if (id) { // Ensure ID is not null/empty, though setAttribute should prevent this
+                originalElementsSnapshot.set(id, {
+                    className: el.className,
+                    styleCssText: el.style.cssText
+                    // Potentially add other attributes like 'open' for <details> if needed
+                });
+            }
+        });
+    }
 
 	// --- Initialization ---
 	function init() {
@@ -2172,18 +2282,18 @@ footer {
 		hideActionToolbar();
 		originalJs = ''; // Reset stored JS content
 
-        // Clear existing comment icons and data
-        if (iframeDoc) {
-            const existingIconContainer = iframeDoc.getElementById('n2l-comment-icon-container');
-            if (existingIconContainer) {
-                existingIconContainer.innerHTML = ''; 
-            }
-        }
-        commentedElements.clear();
+		// Clear existing comment icons and data
+		if (iframeDoc) {
+			const existingIconContainer = iframeDoc.getElementById('n2l-comment-icon-container');
+			if (existingIconContainer) {
+				existingIconContainer.innerHTML = ''; 
+			}
+		}
+		commentedElements.clear();
 		
 		// Exit preview mode if active
 		if (previewModeActive) {
-			togglePreviewMode(); // This will attempt to use iframeDoc, ensure it's handled if iframeDoc is about to be reset
+			togglePreviewMode();
 		}
 
 		let htmlContent = rawCode;
@@ -2234,30 +2344,30 @@ footer {
 					/* Prevent link navigation in editor mode */
 					a { pointer-events: none; } 
 
-                    /* Comment Indicator Icon Style (copied from main styles for iframe context) */
-                    .n2l-comment-indicator {
-                        position: absolute; /* Will be positioned by JS */
-                        width: 20px;
-                        height: 20px;
-                        background-color: #2196F3; /* Blue */
-                        color: white;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 10px;
-                        cursor: pointer;
-                        z-index: 1002; 
-                        box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-                        border: 1px solid #0d47a1; /* Darker blue border */
-                        transition: transform 0.1s ease-out;
-                    }
-                    .n2l-comment-indicator:hover {
-                        transform: scale(1.1);
-                    }
-                    .n2l-comment-indicator i {
-                        pointer-events: none;
-                    }
+					/* Comment Indicator Icon Style (copied from main styles for iframe context) */
+					.n2l-comment-indicator {
+						position: absolute; /* Will be positioned by JS */
+						width: 20px;
+						height: 20px;
+						background-color: #2196F3; /* Blue */
+						color: white;
+						border-radius: 50%;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						font-size: 10px;
+						cursor: pointer;
+						z-index: 1002; 
+						box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+						border: 1px solid #0d47a1; /* Darker blue border */
+						transition: transform 0.1s ease-out;
+					}
+					.n2l-comment-indicator:hover {
+						transform: scale(1.1);
+					}
+					.n2l-comment-indicator i {
+						pointer-events: none;
+					}
 					
 					/* Inject parsed CSS rules */
 					${cssManager.generateCss()}
@@ -2283,29 +2393,39 @@ footer {
 					return;
 				}
 
+                // ***** MODIFIED: Assign initial IDs and clear snapshot *****
+                assignN2LIdsToDom(iframeDoc.body);
+                originalElementsSnapshot.clear(); // Reset snapshot, new content loaded
+
+
 				iframeDoc.body.addEventListener('click', handleIframeClick, true);
 
+				// Prevent navigation but allow internal anchors
 				const links = iframeDoc.getElementsByTagName('a');
 				for (const link of links) {
 					link.addEventListener('click', (event) => {
 						event.preventDefault();
-						console.log(`Link clicked but navigation prevented: ${link.href}`);
+						const href = link.getAttribute('href');
+						if (href && href.startsWith('#')) {
+							// Allow internal anchor navigation
+							const targetId = href.substring(1);
+							const targetElement = iframeDoc.getElementById(targetId);
+							if (targetElement) {
+								targetElement.scrollIntoView({ behavior: 'smooth' });
+							}
+						}
 					});
-					link.style.pointerEvents = 'auto'; // Make them clickable to be preventable
+					link.style.pointerEvents = 'auto';
 				}
-                
-                // Ensure icon container is ready and scan for existing comments
-                ensureIconContainer();
-                scanForExistingComments();
-                updateAllCommentIconsPositions();
+				
+				ensureIconContainer();
+				scanForExistingComments();
+				updateAllCommentIconsPositions();
 
-
-				// Add scroll listener to iframe window to reposition toolbar and icons
 				iframeWin.addEventListener('scroll', () => {
-                    positionActionToolbar();
-                    updateAllCommentIconsPositions();
-                }, true);
-
+					positionActionToolbar();
+					updateAllCommentIconsPositions();
+				}, true);
 
 			} catch (e) {
 				console.error("Error accessing iframe content:", e);
@@ -2510,7 +2630,12 @@ footer {
 			const oldElement = selectedElement;
             const newElement = temp.firstChild;
 			parentNode.replaceChild(newElement, selectedElement);
-			selectElement(newElement); // Select the new element
+			
+            // ***** MODIFIED: Assign IDs to new structure and clear snapshot *****
+            assignN2LIdsToDom(newElement); 
+            originalElementsSnapshot.clear(); // DOM structure significantly changed
+
+            selectElement(newElement); // Select the new element
             scanForExistingComments(); // Re-scan for comments that might now associate with new structure
             updateAllCommentIconsPositions();
 		} else {
@@ -2536,33 +2661,70 @@ footer {
 
 	// --- Preview Mode Toggle ---
 	function togglePreviewMode() {
-        if (!iframeDoc || !iframeDoc.body) { // Check if iframe is ready
-            previewModeActive = false; // Ensure it's off if iframe not ready
-            previewModeBtn.textContent = 'Enter Preview Mode';
-            previewModeBtn.classList.remove('preview-active');
-            return;
-        }
+		if (!iframeDoc || !iframeDoc.body) {
+			previewModeActive = false;
+			previewModeBtn.textContent = 'Enter Preview Mode';
+			previewModeBtn.classList.remove('preview-active');
+			return;
+		}
+
+		// Capture state BEFORE entering preview mode
+		if (!previewModeActive) { // This block executes when we are ABOUT to enter preview mode
+			// Ensure all elements have IDs before taking the snapshot
+			assignN2LIdsToDom(iframeDoc.body); // Ensures any elements added by user (e.g. via HTML edit) get IDs
+			capturePreviewStartState();
+		}
+		
 		previewModeActive = !previewModeActive;
-        const iconContainer = iframeDoc.getElementById('n2l-comment-icon-container');
+		const iconContainer = iframeDoc.getElementById('n2l-comment-icon-container');
 		
 		if (previewModeActive) {
+			// ENTERING PREVIEW MODE
 			iframeDoc.body.removeEventListener('click', handleIframeClick, true);
-			deselectElement(); // Hides selection, toolbar
-            if (iconContainer) iconContainer.style.display = 'none'; // Hide comment icons
+			deselectElement();
+			if (iconContainer) iconContainer.style.display = 'none';
 
+			// Handle links more carefully
 			const links = iframeDoc.getElementsByTagName('a');
 			for (const link of links) {
 				link.style.pointerEvents = 'auto';
-				const clone = link.cloneNode(true); // Re-clone to remove our listeners
-				link.parentNode.replaceChild(clone, link);
+				
+				// Store reference to new handler so we can remove it later
+				link._previewClickHandler = function(event) {
+					const href = this.getAttribute('href');
+					if (href && href.startsWith('http')) {
+						// External link - prevent navigation
+						event.preventDefault();
+						console.log(`External link clicked but navigation prevented: ${href}`);
+					} else if (href && href.startsWith('#')) {
+						// Internal anchor - let it work normally but prevent full page reload
+						event.preventDefault();
+						const targetId = href.substring(1);
+						const targetElement = iframeDoc.getElementById(targetId);
+						if (targetElement) {
+							targetElement.scrollIntoView({ behavior: 'smooth' });
+						}
+					}
+					// For other links (like javascript: or relative paths), let them work normally
+				};
+				link.addEventListener('click', link._previewClickHandler);
 			}
 			
+			// Re-execute JavaScript to restore interactive functionality
 			if (originalJs && originalJs.trim() !== '') {
 				try {
+					// Execute JavaScript in the global scope of the iframe
 					const scriptElement = iframeDoc.createElement('script');
 					scriptElement.textContent = originalJs;
 					iframeDoc.body.appendChild(scriptElement);
-					iframeDoc.n2lTempScript = scriptElement; 
+					
+					// Also dispatch a DOMContentLoaded event in case scripts are waiting for it
+					const domLoadedEvent = new Event('DOMContentLoaded', {
+						bubbles: true,
+						cancelable: true
+					});
+					iframeDoc.dispatchEvent(domLoadedEvent);
+					
 				} catch (error) {
 					console.error("Error executing user JavaScript in preview mode:", error);
 				}
@@ -2573,27 +2735,50 @@ footer {
 			previewIframe.classList.add('preview-mode-frame');
 			previewModeIndicator.style.display = 'block';
 		} else {
+			// EXITING PREVIEW MODE - Keep current state, just restore editor functionality
+			
+			// Remove dynamically added script elements
+			const dynamicScripts = iframeDoc.querySelectorAll('script:not([src])');
+			dynamicScripts.forEach(script => {
+				if (originalJs && script.textContent.includes(originalJs)) {
+					script.remove();
+				}
+			});
+			
 			iframeDoc.body.addEventListener('click', handleIframeClick, true);
-            if (iconContainer) iconContainer.style.display = 'block'; // Show comment icons
+			if (iconContainer) iconContainer.style.display = 'block';
 
+			// Restore link prevention for editor mode
 			const links = iframeDoc.getElementsByTagName('a');
 			for (const link of links) {
-				link.addEventListener('click', (event) => { // Add back prevention
+				// Remove preview mode handler
+				if (link._previewClickHandler) {
+					link.removeEventListener('click', link._previewClickHandler);
+					delete link._previewClickHandler;
+				}
+				
+				// Add editor mode handler
+				link._editorClickHandler = function(event) {
 					event.preventDefault();
-				});
-				link.style.pointerEvents = 'auto'; // Still auto, but click is prevented
+					const href = link.getAttribute('href');
+					if (href && href.startsWith('#')) {
+						// Allow internal anchor navigation even in editor mode
+						const targetId = href.substring(1);
+						const targetElement = iframeDoc.getElementById(targetId);
+						if (targetElement) {
+							targetElement.scrollIntoView({ behavior: 'smooth' });
+						}
+					}
+				};
+				link.addEventListener('click', link._editorClickHandler);
+				link.style.pointerEvents = 'auto';
 			}
 			
 			previewModeBtn.textContent = 'Enter Preview Mode';
 			previewModeBtn.classList.remove('preview-active');
 			previewIframe.classList.remove('preview-mode-frame');
 			previewModeIndicator.style.display = 'none';
-			
-			if (iframeDoc.n2lTempScript && iframeDoc.n2lTempScript.parentNode) {
-				iframeDoc.n2lTempScript.parentNode.removeChild(iframeDoc.n2lTempScript);
-                delete iframeDoc.n2lTempScript;
-			}
-            updateAllCommentIconsPositions(); // Refresh icon positions
+			// Note: We don't revert DOM changes here. Reversion happens at export.
 		}
 	}
 
@@ -2816,6 +3001,17 @@ footer {
 		const clone = selectedElement.cloneNode(true);
 		clone.classList.remove('N2L_EDITOR_SELECTED');
 		
+		// ***** MODIFIED: Strip old IDs, assign new unique ID(s) to clone, and clear snapshot *****
+		function stripN2LIdsRecursive(element) {
+			if (element.removeAttribute) element.removeAttribute('data-n2l-id');
+			if (element.querySelectorAll) {
+				element.querySelectorAll('[data-n2l-id]').forEach(child => child.removeAttribute('data-n2l-id'));
+			}
+		}
+		stripN2LIdsRecursive(clone); // Strip existing IDs from the clone and its children
+		assignN2LIdsToDom(clone);    // Assign new, unique IDs
+		originalElementsSnapshot.clear(); // DOM structure changed
+
 		if (above) {
 			selectedElement.parentNode.insertBefore(clone, selectedElement);
 		} else {
@@ -3009,35 +3205,62 @@ footer {
 		}
 
 		try {
-			const bodyClone = iframeDoc.body.cloneNode(true);
-            const iconContainerClone = bodyClone.querySelector('#n2l-comment-icon-container');
-            if (iconContainerClone) {
-                iconContainerClone.remove();
-            }
+			const processedBody = iframeDoc.body.cloneNode(true);
+            
+            const iconContainerClone = processedBody.querySelector('#n2l-comment-icon-container');
+            if (iconContainerClone) iconContainerClone.remove();
 				
-			const selectedElementsInClone = bodyClone.querySelectorAll('.N2L_EDITOR_SELECTED');
-			selectedElementsInClone.forEach(el => {
+			processedBody.querySelectorAll('.N2L_EDITOR_SELECTED').forEach(el => {
 				el.classList.remove('N2L_EDITOR_SELECTED');
 				if (el.classList.length === 0) el.removeAttribute('class');
 			});
 				
-			let processedHTML = bodyClone.innerHTML.trim();
-			processedHTML = processedHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, (match) => {
-                // Only remove our temp script, keep others (like jQuery if it was part of original user code)
-                if (match.includes('n2lTempScript')) return ''; 
-                // Check if the script is the injected jQuery if originalJs doesn't imply jQuery was user-added.
-                // This part is tricky. For now, assume if originalJs contains jQuery, it's user's.
-                // A safer bet is to only remove n2lTempScript.
-                return match;
+            // --- MODIFIED LOGIC FOR REVERTING JS CHANGES AND REMOVING DYNAMIC CONTENT ---
+            const elementsToRemove = [];
+            const allElementsInClone = Array.from(processedBody.querySelectorAll('*')); // Get static list before modifications
+
+            allElementsInClone.forEach(el => {
+                const id = el.getAttribute('data-n2l-id');
+                if (id && originalElementsSnapshot.has(id)) {
+                    // This element existed before preview: revert its class and style attributes
+                    const snapshot = originalElementsSnapshot.get(id);
+                    el.className = snapshot.className;       // Revert class
+                    el.style.cssText = snapshot.styleCssText; // Revert style
+                } else if (id) { // Has an ID, but it's not in the snapshot (i.e., added during preview)
+                    elementsToRemove.push(el);
+                } else { 
+                    // No ID - this element might be dynamically generated content that wasn't assigned an ID, or part of a larger user edit.
+                    // This logic assumes dynamically generated content for removal *must* have been given an ID by our system.
+                    // If JS creates elements without our system assigning IDs, they might remain.
+                    // For safety, let's stick to removing only identified new elements.
+                    // If an element has no ID but also is not in the snapshot, it's harder to classify without more complex diffing.
+                    // The current strategy focuses on elements that *did* get an ID but were not in the original snapshot.
+                    // Let's refine: if an element has a data-n2l-id, it *must* be in snapshot or it's new.
+                    // If it *doesn't* have a data-n2l-id, it's either user-pasted HTML without IDs,
+                    // or JS generated it and we didn't catch it to assign an ID (less likely with assignN2LIdsToDom).
+                    // The safest is to only remove elements with a data-n2l-id that is *not* in the snapshot.
+                }
             });
 
+            elementsToRemove.forEach(el => {
+                if (el.parentNode) { // Ensure element is still in DOM before removing
+                     el.remove();
+                }
+            });
+
+            // Remove all data-n2l-id attributes from the final output
+            processedBody.querySelectorAll('[data-n2l-id]').forEach(el => el.removeAttribute('data-n2l-id'));
+            // --- END OF MODIFIED LOGIC ---
+				
+			let processedHTML = processedBody.innerHTML.trim();
+			
 			processedHTML = processedHTML.replace(/\s*N2L_EDITOR_SELECTED\s*/g, ' ').replace(/class="\s*"/g, '').replace(/class='\s*'/g, '').replace(/\s+class=""/g, '').replace(/\s+class=''/g, '').replace(/class="\s+/g, 'class="').replace(/class='\s+/g, "class='");
 
 			const processedCSS = cssManager.generateCss();
 			let finalCode = processedHTML;
 
-			if (processedCSS) finalCode += `\n\n<style>\n${processedCSS}</style>`;
-			if (originalJs) finalCode += `\n\n<script>\n${originalJs}\n<\/script>`;
+			if (processedCSS) finalCode += `\n\n<style>\n${processedCSS.trim()}\n</style>`;
+			if (originalJs) finalCode += `\n\n<script>\n${originalJs.trim()}\n<\/script>`;
 
 			const outputArea = document.createElement('textarea');
 			outputArea.style.width = '90%';
@@ -3127,5 +3350,3 @@ footer {
 	// --- Start the app ---
 	init();
 </script>
-</body>
-</html>
