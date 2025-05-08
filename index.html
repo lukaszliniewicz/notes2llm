@@ -49,18 +49,17 @@ html, body {
     min-width: 250px;
     max-width: 60%;
     background-color: #f0f0f0;
-    border-right: 1px solid #ccc;
-    padding: 15px;
+    padding: 5px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+	scrollbar-width:thin;
 }
 
 /* Sidebar Header with Logo */
 .n2l-sidebar-header {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
 }
 
 .n2l-sidebar-logo {
@@ -139,8 +138,6 @@ html, body {
     border: 1px solid #384D68;
     border-radius: 0;
     padding: 8px 12px;
-    margin-top: 10px;
-    margin-right: 5px;
     cursor: pointer;
     transition: background-color 0.2s ease;
     font-family: 'Roboto', sans-serif;
@@ -165,9 +162,7 @@ html, body {
 }
 
 #n2l-controls-panel {
-    margin-top: 20px;
-    border-top: 2px solid #ccc;
-    padding-top: 15px;
+    margin-top: 1px;
 }
 #n2l-element-info {
     font-size: 0.8em;
@@ -201,7 +196,7 @@ html, body {
 #n2l-action-toolbar {
     position: absolute;
     display: none;
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(0, 0, 0, 0.6);
     padding: 5px 8px;
     border-radius: 0;
     border: 1px solid #ccc;
@@ -426,7 +421,7 @@ input:checked + .n2l-slider-switch:before {
 
 .n2l-modal-content {
     background-color: #fefefe;
-    margin: 5% auto;
+    margin: 0 auto;
     padding: 25px;
     border: 1px solid #888;
     width: 75%;
@@ -480,10 +475,19 @@ input:checked + .n2l-slider-switch:before {
     position: absolute;
     top: 15px;
     right: 20px;
-    color: #999;
-    font-size: 28px;
+    color: white;
+    font-size: 40px;
     font-weight: bold;
     cursor: pointer;
+    /* border: cornsilk; */
+    width: 30px;
+    height: 30px;
+    line-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: crimson;
+    border-radius: 50%;
 }
 
 .n2l-close:hover {
@@ -1183,15 +1187,15 @@ input:checked + .n2l-slider-switch:before {
 .n2l-prompt-modal-content {
     width: 90%;
     max-width: 1200px;
-    height: 85vh;
-    max-height: 85vh;
+    height: 100vh;
+    max-height: 100vh;
     overflow: hidden;
     padding: 20px;
 }
 
 #n2l-prompt-generator-iframe {
     width: 100%;
-    height: calc(100% - 70px);
+    height: calc(100% - 20px);
     border: none;
     overflow: auto;
 }
@@ -1263,7 +1267,7 @@ input:checked + .n2l-slider-switch:before {
     padding: 12px;
     margin: 15px 0;
     font-size: 0.9em;
-	margin-top: 0;
+	margin-top: 5px;
 }
 
 .n2l-getting-started h4 {
@@ -1297,6 +1301,79 @@ input:checked + .n2l-slider-switch:before {
 .n2l-getting-started strong {
     color: #384D68;
     font-weight: 500;
+}
+
+/* WYSIWYG Editor styles */
+.n2l-wysiwyg-container {
+    border: 1px solid #ccc;
+    margin-top: 4px;
+	margin-bottom: 4px;
+}
+
+.n2l-wysiwyg-toolbar {
+    display: flex;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+    background-color: #f5f5f5;
+	justify-content: space-around;
+}
+
+.n2l-wysiwyg-button {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+}
+
+.n2l-wysiwyg-button:hover {
+    background-color: #e0e0e0;
+}
+
+.n2l-wysiwyg-button.active {
+    background-color: #384D68;
+    color: white;
+    border-color: #384D68;
+}
+
+.n2l-wysiwyg-editor {
+    min-height: 120px;
+    padding: 5px;
+    font-family: 'Roboto', sans-serif;
+    outline: none;
+    overflow-y: auto;
+    max-height: 300px;
+	background-color:white;
+}
+
+.n2l-wysiwyg-editor:focus {
+    box-shadow: 0 0 3px rgba(56, 77, 104, 0.3);
+}
+
+/* Button group styling */
+.n2l-button-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+	justify-content: space-around;
+}
+
+.n2l-button-group button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+	flex-direction: column;
+}
+
+.n2l-button-group button i {
+    font-size: 0.9em;
 }
 
 </style>
@@ -1701,8 +1778,14 @@ input:checked + .n2l-slider-switch:before {
 	</ul>
 </div>
 
-<button id="n2l-get-code-btn" class="secondary">Get Processed Code</button>
-<button id="n2l-preview-mode-btn">Enter Preview Mode</button>
+<div class="n2l-button-group">
+    <button id="n2l-get-code-btn" class="secondary">
+        <i class="fas fa-code"></i> Export
+    </button>
+    <button id="n2l-preview-mode-btn">
+        <i class="fas fa-eye"></i> Preview
+    </button>
+</div>
 
 	 <div id="n2l-controls-panel" style="display: none;">
 			<h3>Selected Element</h3>
@@ -1711,8 +1794,29 @@ input:checked + .n2l-slider-switch:before {
 			<!-- Text Editing - Reorganized -->
 			<div id="n2l-text-edit-control" class="n2l-control-group" style="display: none;">
 				<h3>Text</h3>
-				<p>Edit text content directly:</p>
-				<textarea id="n2l-text-editor"></textarea>
+				<div class="n2l-wysiwyg-container">
+					<div class="n2l-wysiwyg-toolbar">
+						<button class="n2l-wysiwyg-button" data-command="bold" title="Bold">
+							<i class="fas fa-bold"></i>
+						</button>
+						<button class="n2l-wysiwyg-button" data-command="italic" title="Italic">
+							<i class="fas fa-italic"></i>
+						</button>
+						<button class="n2l-wysiwyg-button" data-command="underline" title="Underline">
+							<i class="fas fa-underline"></i>
+						</button>
+						<button class="n2l-wysiwyg-button" data-command="createLink" title="Insert Link">
+							<i class="fas fa-link"></i>
+						</button>
+						<button class="n2l-wysiwyg-button" data-command="unlink" title="Remove Link">
+							<i class="fas fa-unlink"></i>
+						</button>
+						<button class="n2l-wysiwyg-button" data-command="removeFormat" title="Clear Formatting">
+							<i class="fas fa-eraser"></i>
+						</button>
+					</div>
+					<div id="n2l-wysiwyg-editor" class="n2l-wysiwyg-editor" contenteditable="true"></div>
+				</div>
 				<button id="n2l-apply-text-change">Apply Text</button>
 			</div>
 
@@ -1847,11 +1951,20 @@ input:checked + .n2l-slider-switch:before {
 		}
 		
 		updateRule(selector, newProperties) {
-			const ruleIndex = this.cssRules.findIndex(rule => rule.selector === selector);
-			
-			if (ruleIndex !== -1) {
-				this.cssRules[ruleIndex].properties = newProperties;
+			// Modified to support command pattern
+			if (commandHistory && commandHistory.isExecutingCommand) {
+				const ruleIndex = this.cssRules.findIndex(rule => rule.selector === selector);
+				if (ruleIndex !== -1) {
+					this.cssRules[ruleIndex].properties = newProperties;
+				}
+				return;
 			}
+			
+			const oldRule = this.cssRules.find(rule => rule.selector === selector);
+			const oldProperties = oldRule ? oldRule.properties : '';
+			
+			const command = new CSSRuleChangeCommand(selector, oldProperties, newProperties);
+			commandHistory.execute(command);
 		}
 		
 		addRule(selector, properties) {
@@ -1899,6 +2012,346 @@ input:checked + .n2l-slider-switch:before {
 		}
 	}
 
+	// Command History System for Undo/Redo
+	class CommandHistory {
+		constructor() {
+			this.undoStack = [];
+			this.redoStack = [];
+			this.maxHistorySize = 100;
+			this.isExecutingCommand = false;
+		}
+		
+		execute(command) {
+			if (this.isExecutingCommand) return; // Prevent recursion
+			
+			this.isExecutingCommand = true;
+			try {
+				command.execute();
+				this.undoStack.push(command);
+				this.redoStack = []; // Clear redo stack on new action
+				
+				// Limit history size
+				if (this.undoStack.length > this.maxHistorySize) {
+					this.undoStack.shift();
+				}
+				
+				this.updateUI();
+			} finally {
+				this.isExecutingCommand = false;
+			}
+		}
+		
+		undo() {
+			if (this.undoStack.length === 0) return;
+			
+			this.isExecutingCommand = true;
+			try {
+				const command = this.undoStack.pop();
+				command.undo();
+				this.redoStack.push(command);
+				this.updateUI();
+			} finally {
+				this.isExecutingCommand = false;
+			}
+		}
+		
+		redo() {
+			if (this.redoStack.length === 0) return;
+			
+			this.isExecutingCommand = true;
+			try {
+				const command = this.redoStack.pop();
+				command.execute();
+				this.undoStack.push(command);
+				this.updateUI();
+			} finally {
+				this.isExecutingCommand = false;
+			}
+		}
+		
+		clear() {
+			this.undoStack = [];
+			this.redoStack = [];
+			this.updateUI();
+		}
+		
+		updateUI() {
+			// Update undo/redo button states
+			const undoBtn = document.getElementById('n2l-undo-btn');
+			const redoBtn = document.getElementById('n2l-redo-btn');
+			
+			if (undoBtn) undoBtn.disabled = this.undoStack.length === 0;
+			if (redoBtn) redoBtn.disabled = this.redoStack.length === 0;
+		}
+	}
+
+	// Base command class
+	class BaseCommand {
+		constructor(description) {
+			this.description = description;
+			this.timestamp = Date.now();
+		}
+	}
+
+	// Command for text changes
+	class TextChangeCommand extends BaseCommand {
+		constructor(element, oldContent, newContent, isWYSIWYG = false) {
+			super('Change text');
+			this.element = element;
+			this.elementId = element.getAttribute('data-n2l-id');
+			this.oldContent = oldContent;
+			this.newContent = newContent;
+			this.isWYSIWYG = isWYSIWYG;
+			this.tagName = element.tagName.toLowerCase();
+		}
+		
+		execute() {
+			const el = iframeDoc.querySelector(`[data-n2l-id="${this.elementId}"]`);
+			if (!el) return;
+			
+			if (this.tagName === 'textarea') {
+				el.value = this.newContent;
+			} else if (this.isWYSIWYG) {
+				el.innerHTML = this.newContent;
+			} else {
+				el.textContent = this.newContent;
+			}
+			
+			// Re-select element if it was selected
+			if (selectedElement && selectedElement.getAttribute('data-n2l-id') === this.elementId) {
+				selectElement(el);
+			}
+		}
+		
+		undo() {
+			const el = iframeDoc.querySelector(`[data-n2l-id="${this.elementId}"]`);
+			if (!el) return;
+			
+			if (this.tagName === 'textarea') {
+				el.value = this.oldContent;
+			} else if (this.isWYSIWYG) {
+				el.innerHTML = this.oldContent;
+			} else {
+				el.textContent = this.oldContent;
+			}
+			
+			if (selectedElement && selectedElement.getAttribute('data-n2l-id') === this.elementId) {
+				selectElement(el);
+			}
+		}
+	}
+
+	// Command for CSS rule changes
+	class CSSRuleChangeCommand extends BaseCommand {
+		constructor(selector, oldProperties, newProperties) {
+			super('Change CSS rule');
+			this.selector = selector;
+			this.oldProperties = oldProperties;
+			this.newProperties = newProperties;
+		}
+		
+		execute() {
+			const ruleIndex = cssManager.cssRules.findIndex(rule => rule.selector === this.selector);
+			if (ruleIndex !== -1) {
+				cssManager.cssRules[ruleIndex].properties = this.newProperties;
+			}
+			refreshIframeStyles();
+			if (selectedElement) populateCssRules(selectedElement);
+		}
+		
+		undo() {
+			const ruleIndex = cssManager.cssRules.findIndex(rule => rule.selector === this.selector);
+			if (ruleIndex !== -1) {
+				cssManager.cssRules[ruleIndex].properties = this.oldProperties;
+			}
+			refreshIframeStyles();
+			if (selectedElement) populateCssRules(selectedElement);
+		}
+	}
+
+	// Command for adding CSS rules
+	class AddCSSRuleCommand extends BaseCommand {
+		constructor(selector, properties, elementId = null, applyToElement = false) {
+			super('Add CSS rule');
+			this.selector = selector;
+			this.properties = properties;
+			this.elementId = elementId;
+			this.applyToElement = applyToElement;
+			this.previousClasses = null;
+			this.previousId = null;
+		}
+		
+		execute() {
+			cssManager.addRule(this.selector, this.properties);
+			
+			if (this.applyToElement && this.elementId) {
+				const el = iframeDoc.querySelector(`[data-n2l-id="${this.elementId}"]`);
+				if (el) {
+					this.previousClasses = el.className;
+					this.previousId = el.id;
+					
+					if (this.selector.startsWith('.')) {
+						const className = this.selector.substring(1);
+						if (!el.classList.contains(className)) {
+							el.classList.add(className);
+						}
+					} else if (this.selector.startsWith('#')) {
+						const idName = this.selector.substring(1);
+						el.id = idName;
+					}
+				}
+			}
+			
+			refreshIframeStyles();
+			if (selectedElement) populateCssRules(selectedElement);
+		}
+		
+		undo() {
+			cssManager.deleteRule(this.selector);
+			
+			if (this.applyToElement && this.elementId) {
+				const el = iframeDoc.querySelector(`[data-n2l-id="${this.elementId}"]`);
+				if (el) {
+					el.className = this.previousClasses || '';
+					el.id = this.previousId || '';
+				}
+			}
+			
+			refreshIframeStyles();
+			if (selectedElement) populateCssRules(selectedElement);
+		}
+	}
+
+	// Command for element removal
+	class RemoveElementCommand extends BaseCommand {
+		constructor(element) {
+			super('Remove element');
+			this.elementId = element.getAttribute('data-n2l-id');
+			
+			// Parent might not be an element (could be document fragment, etc)
+			this.parentId = element.parentNode && element.parentNode.getAttribute ? 
+				element.parentNode.getAttribute('data-n2l-id') : null;
+			
+			// Find next ELEMENT sibling, not just any sibling
+			let nextElementSibling = element.nextElementSibling;
+			this.nextSiblingId = nextElementSibling ? 
+				nextElementSibling.getAttribute('data-n2l-id') : null;
+			
+			this.elementHtml = element.outerHTML;
+			this.commentData = commentedElements.get(element);
+		}
+		
+		execute() {
+			const el = iframeDoc.querySelector(`[data-n2l-id="${this.elementId}"]`);
+			if (!el) return;
+			
+			// Remove comment if exists
+			if (this.commentData) {
+				if (this.commentData.commentNode.parentNode) {
+					this.commentData.commentNode.remove();
+				}
+				if (this.commentData.iconElement.parentNode) {
+					this.commentData.iconElement.remove();
+				}
+				commentedElements.delete(el);
+			}
+			
+			el.remove();
+			updateAllCommentIconsPositions();
+		}
+		
+		undo() {
+			const parent = iframeDoc.querySelector(`[data-n2l-id="${this.parentId}"]`);
+			if (!parent) return;
+			
+			const temp = iframeDoc.createElement('div');
+			temp.innerHTML = this.elementHtml;
+			const restoredElement = temp.firstChild;
+			
+			if (this.nextSiblingId) {
+				const nextSibling = iframeDoc.querySelector(`[data-n2l-id="${this.nextSiblingId}"]`);
+				if (nextSibling && nextSibling.parentNode === parent) {
+					parent.insertBefore(restoredElement, nextSibling);
+				} else {
+					// Next sibling no longer exists or moved, append to parent
+					parent.appendChild(restoredElement);
+				}
+			} else {
+				parent.appendChild(restoredElement);
+			}
+			
+			// Restore comment if it existed
+			if (this.commentData) {
+				createOrUpdateCommentIcon(restoredElement, this.commentData.commentNode, this.commentData.position);
+			}
+			
+			updateAllCommentIconsPositions();
+		}
+	}
+
+	// Command for HTML changes
+	class HTMLChangeCommand extends BaseCommand {
+		constructor(element, oldHtml, newHtml) {
+			super('Change HTML');
+			this.elementId = element.getAttribute('data-n2l-id');
+			
+			// Parent might not be an element
+			this.parentId = element.parentNode && element.parentNode.getAttribute ? 
+				element.parentNode.getAttribute('data-n2l-id') : null;
+			
+			// Find next ELEMENT sibling
+			let nextElementSibling = element.nextElementSibling;
+			this.nextSiblingId = nextElementSibling ? 
+				nextElementSibling.getAttribute('data-n2l-id') : null;
+			
+			this.oldHtml = oldHtml;
+			this.newHtml = newHtml;
+			this.oldCommentData = commentedElements.get(element);
+		}
+		
+		execute() {
+			const parent = iframeDoc.querySelector(`[data-n2l-id="${this.parentId}"]`);
+			const oldElement = iframeDoc.querySelector(`[data-n2l-id="${this.elementId}"]`);
+			if (!parent || !oldElement) return;
+			
+			const temp = iframeDoc.createElement('div');
+			temp.innerHTML = this.newHtml;
+			const newElement = temp.firstChild;
+			
+			// Preserve data-n2l-id
+			newElement.setAttribute('data-n2l-id', this.elementId);
+			
+			parent.replaceChild(newElement, oldElement);
+			assignN2LIdsToDom(newElement);
+			
+			if (selectedElement) selectElement(newElement);
+			scanForExistingComments();
+			updateAllCommentIconsPositions();
+		}
+		
+		undo() {
+			const parent = iframeDoc.querySelector(`[data-n2l-id="${this.parentId}"]`);
+			const currentElement = iframeDoc.querySelector(`[data-n2l-id="${this.elementId}"]`);
+			if (!parent || !currentElement) return;
+			
+			const temp = iframeDoc.createElement('div');
+			temp.innerHTML = this.oldHtml;
+			const oldElement = temp.firstChild;
+			
+			oldElement.setAttribute('data-n2l-id', this.elementId);
+			
+			parent.replaceChild(oldElement, currentElement);
+			
+			// Restore comment if it existed
+			if (this.oldCommentData) {
+				createOrUpdateCommentIcon(oldElement, this.oldCommentData.commentNode, this.oldCommentData.position);
+			}
+			
+			if (selectedElement) selectElement(oldElement);
+			updateAllCommentIconsPositions();
+		}
+	}
+
 	// DOM Elements
 	const welcomeCodeInput = document.getElementById('n2l-welcome-code-input');
 	const welcomeLoadBtn = document.getElementById('n2l-welcome-load-btn');
@@ -1925,7 +2378,8 @@ input:checked + .n2l-slider-switch:before {
 	const elementIdInput = document.getElementById('n2l-element-id');
 	const applyClassIdBtn = document.getElementById('n2l-apply-class-id');
 	const textEditControl = document.getElementById('n2l-text-edit-control');
-	const textEditor = document.getElementById('n2l-text-editor');
+	const wysiwygEditor = document.getElementById('n2l-wysiwyg-editor');
+	const wysiwygToolbar = document.querySelector('.n2l-wysiwyg-toolbar');
 	const applyTextChange = document.getElementById('n2l-apply-text-change');
 	const imageSrcControl = document.getElementById('n2l-image-src-control');
 	const imageSrcInput = document.getElementById('n2l-image-src-input');
@@ -1952,11 +2406,15 @@ input:checked + .n2l-slider-switch:before {
 	let originalJs = '';  // Store original JS content
 	let previewModeActive = false; // Track preview mode state
 	const cssManager = new Notes2LLMCssManager(); // Create CSS Manager
+	let gettingStartedVisible = true;
     let commentedElements = new Map(); // Map: element -> { commentNode: Node, iconElement: HTMLElement, position: 'above' | 'below' }
 
     // Global state for tracking pre-preview attributes and IDs
     let originalElementsSnapshot = new Map();
     let nextN2LId = 1; // Counter for unique IDs
+
+	// Initialize command history
+	const commandHistory = new CommandHistory();
 
 	// Example code for demonstration
 	const exampleCode = `
@@ -2135,6 +2593,31 @@ footer {
         });
     }
 
+	// Add undo/redo buttons to the UI
+	function addUndoRedoButtons() {
+		const sidebar = document.getElementById('n2l-sidebar');
+		const controlButtons = document.createElement('div');
+		controlButtons.style.display = 'flex';
+		controlButtons.style.justifyContent = 'center';
+		controlButtons.style.gap = '10px';
+		controlButtons.innerHTML = `
+			<button id="n2l-undo-btn" class="secondary" disabled>
+				<i class="fas fa-undo"></i> Undo
+			</button>
+			<button id="n2l-redo-btn" class="secondary" disabled>
+				<i class="fas fa-redo"></i> Redo
+			</button>
+		`;
+		
+		// Insert after the existing buttons
+		const previewModeBtn = document.getElementById('n2l-preview-mode-btn');
+		previewModeBtn.parentNode.insertBefore(controlButtons, previewModeBtn.nextSibling);
+		
+		// Add event listeners
+		document.getElementById('n2l-undo-btn').addEventListener('click', () => commandHistory.undo());
+		document.getElementById('n2l-redo-btn').addEventListener('click', () => commandHistory.redo());
+	}
+
 	// --- Initialization ---
 	function init() {
 		// Show welcome page on load
@@ -2214,14 +2697,32 @@ footer {
 
 		// Hide toolbar on main window scroll
 		window.addEventListener('scroll', () => {
-            hideActionToolbar();
-            updateAllCommentIconsPositions(); // Update icon positions relative to main window scroll
-        });
-        window.addEventListener('resize', () => {
-            positionActionToolbar();
-            updateAllCommentIconsPositions();
-        });
+			hideActionToolbar();
+			updateAllCommentIconsPositions(); // Update icon positions relative to main window scroll
+		});
+		window.addEventListener('resize', () => {
+			positionActionToolbar();
+			updateAllCommentIconsPositions();
+		});
+		
+		// Initialize WYSIWYG editor
+		initWYSIWYG();
+		
+		// Add undo/redo buttons
+		addUndoRedoButtons();
+		
+		// Add keyboard shortcuts for undo/redo
+		document.addEventListener('keydown', (e) => {
+			if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+				e.preventDefault();
+				commandHistory.undo();
+			} else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+				e.preventDefault();
+				commandHistory.redo();
+			}
+		});
 	}
+
 
 	function initWelcomeTabs() {
 		const tabButtons = document.querySelectorAll('.n2l-tab-button');
@@ -2273,6 +2774,56 @@ footer {
 		}
 	}
 
+	function initWYSIWYG() {
+		// Handle toolbar button clicks
+		wysiwygToolbar.addEventListener('click', (e) => {
+			const button = e.target.closest('.n2l-wysiwyg-button');
+			if (!button) return;
+			
+			e.preventDefault();
+			const command = button.getAttribute('data-command');
+			
+			if (command === 'createLink') {
+				const url = prompt('Enter URL:', 'https://');
+				if (url) {
+					document.execCommand(command, false, url);
+				}
+			} else {
+				document.execCommand(command, false, null);
+			}
+			
+			// Update button states
+			updateWYSIWYGButtonStates();
+			wysiwygEditor.focus();
+		});
+		
+		// Update button states on selection change
+		wysiwygEditor.addEventListener('mouseup', updateWYSIWYGButtonStates);
+		wysiwygEditor.addEventListener('keyup', updateWYSIWYGButtonStates);
+		
+		// Prevent Enter key from creating DIVs
+		wysiwygEditor.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter' && !e.shiftKey) {
+				e.preventDefault();
+				document.execCommand('insertHTML', false, '<br><br>');
+			}
+		});
+	}
+
+	function updateWYSIWYGButtonStates() {
+		const buttons = wysiwygToolbar.querySelectorAll('.n2l-wysiwyg-button');
+		buttons.forEach(button => {
+			const command = button.getAttribute('data-command');
+			if (command === 'createLink' || command === 'unlink' || command === 'removeFormat') return;
+			
+			if (document.queryCommandState(command)) {
+				button.classList.add('active');
+			} else {
+				button.classList.remove('active');
+			}
+		});
+	}
+
 	// --- Code Loading & Iframe Setup ---
 	function loadCodeIntoIframe() {
 		const rawCode = welcomeCodeInput.value;
@@ -2280,6 +2831,9 @@ footer {
 		hideControls();
 		hideActionToolbar();
 		originalJs = ''; // Reset stored JS content
+
+		// Clear command history when loading new code
+		commandHistory.clear();
 
 		// Clear existing comment icons and data
 		if (iframeDoc) {
@@ -2455,27 +3009,37 @@ footer {
 		selectElement(clickedElement);
 	 }
 
-	 function selectElement(element) {
-		 if (previewModeActive) return; // Ignore selection in preview mode
-		 
-		 if (selectedElement === element) {
-			 positionActionToolbar(); 
-             updateAllCommentIconsPositions(); // Refresh icon positions too
-			 return;
-		 }
+	function selectElement(element) {
+		if (previewModeActive) return; // Ignore selection in preview mode
+		
+		if (selectedElement === element) {
+			positionActionToolbar(); 
+			updateAllCommentIconsPositions(); // Refresh icon positions too
+			return;
+		}
 
-		 deselectElement();
+		deselectElement();
 
-		 selectedElement = element;
-		 selectedElement.classList.add('N2L_EDITOR_SELECTED');
+		selectedElement = element;
+		selectedElement.classList.add('N2L_EDITOR_SELECTED');
 
-		 populateControls(selectedElement);
-		 controlsPanel.style.display = 'block';
-		 positionActionToolbar(); 
-		 actionToolbar.style.display = 'block';
-		 positionSelectorIndicator();
-         updateAllCommentIconsPositions(); // Update icon positions on selection change
-	 }
+		// Hide getting started section when first element is selected
+		if (gettingStartedVisible) {
+			const gettingStartedSection = document.querySelector('.n2l-getting-started');
+			if (gettingStartedSection) {
+				gettingStartedSection.style.display = 'none';
+				gettingStartedVisible = false;
+			}
+		}
+
+		populateControls(selectedElement);
+		controlsPanel.style.display = 'block';
+		positionActionToolbar(); 
+		actionToolbar.style.display = 'block';
+		positionSelectorIndicator();
+		updateAllCommentIconsPositions(); // Update icon positions on selection change
+	}
+
 
 	 function deselectElement() {
 		 if (selectedElement) {
@@ -2568,27 +3132,23 @@ footer {
 
 		const textEditableTags = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'a', 'span', 'div', 'td', 'th', 'button', 'label'];
 		if (textEditableTags.includes(tagName) || (el.hasChildNodes() && Array.from(el.childNodes).some(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim() !== ''))) {
-			let directText = Array.from(el.childNodes)
-				.filter(node => node.nodeType === Node.TEXT_NODE)
-				.map(node => node.textContent)
-				.join('')
-				.trim();
-			if (!directText && el.innerText && !el.children.length) { 
-				directText = el.innerText.trim(); 
+			// For textarea, use plain text; for others, use innerHTML
+			if (tagName === 'textarea') {
+				wysiwygEditor.innerText = el.value;
+			} else {
+				// Get the inner HTML of the element
+				wysiwygEditor.innerHTML = el.innerHTML;
 			}
-			else if (!directText && tagName === 'textarea') { 
-				directText = el.value; 
-			}
-			textEditor.value = directText;
 			textEditControl.style.display = 'block';
-            imageSrcControl.style.display = 'none';
+			imageSrcControl.style.display = 'none';
+			updateWYSIWYGButtonStates();
 		} else if (tagName === 'img') {
 			imageSrcInput.value = el.src || '';
 			imageSrcControl.style.display = 'block';
-            textEditControl.style.display = 'none';
+			textEditControl.style.display = 'none';
 		} else {
 			textEditControl.style.display = 'none';
-            imageSrcControl.style.display = 'none';
+			imageSrcControl.style.display = 'none';
 		}
 
 		populateCssRules(el);
@@ -2609,66 +3169,74 @@ footer {
 	function applyHtmlChanges() {
 		if (!selectedElement) return;
 		
-		const parentNode = selectedElement.parentNode;
-		if (!parentNode) return;
-		
-		// Get the old element's ID before replacing
-		const oldId = selectedElement.getAttribute('data-n2l-id');
-		
-		// If selected element had a comment, handle it
-		if (commentedElements.has(selectedElement)) {
-			const entry = commentedElements.get(selectedElement);
-			if (entry.iconElement && entry.iconElement.parentNode) entry.iconElement.remove();
-			commentedElements.delete(selectedElement);
-		}
-		
-		let cleanHtml = elementHtmlEditor.value.trim();
-		cleanHtml = cleanHtml.replace(/\s*N2L_EDITOR_SELECTED\s*/g, ' ')
-							 .replace(/class="\s*"/g, '')
-							 .replace(/class='\s*'/g, '')
-							 .replace(/\s+class=""/g, '')
-							 .replace(/\s+class=''/g, '');
-		
-		const temp = iframeDoc.createElement('div');
-		temp.innerHTML = cleanHtml;
-		
-		if (temp.firstChild) {
-			const newElement = temp.firstChild;
+		// If command history is executing, use original logic
+		if (commandHistory.isExecutingCommand) {
+			const parentNode = selectedElement.parentNode;
+			if (!parentNode) return;
 			
-			// If there was an old ID and we have a snapshot entry for it
-			if (oldId && originalElementsSnapshot.has(oldId)) {
-				// Preserve the old ID on the new element
-				newElement.setAttribute('data-n2l-id', oldId);
-				
-				// For any children, try to map old IDs to new structure
-				// This is a simple approach - you might need more sophisticated mapping
-				const oldChildren = Array.from(selectedElement.querySelectorAll('[data-n2l-id]'));
-				const newChildren = Array.from(newElement.querySelectorAll('*'));
-				
-				// Simple positional mapping - could be improved
-				for (let i = 0; i < Math.min(oldChildren.length, newChildren.length); i++) {
-					const childOldId = oldChildren[i].getAttribute('data-n2l-id');
-					if (childOldId && originalElementsSnapshot.has(childOldId)) {
-						newChildren[i].setAttribute('data-n2l-id', childOldId);
-					}
-				}
+			// Get the old element's ID before replacing
+			const oldId = selectedElement.getAttribute('data-n2l-id');
+			
+			// If selected element had a comment, handle it
+			if (commentedElements.has(selectedElement)) {
+				const entry = commentedElements.get(selectedElement);
+				if (entry.iconElement && entry.iconElement.parentNode) entry.iconElement.remove();
+				commentedElements.delete(selectedElement);
 			}
 			
-			parentNode.replaceChild(newElement, selectedElement);
+			let cleanHtml = elementHtmlEditor.value.trim();
+			cleanHtml = cleanHtml.replace(/\s*N2L_EDITOR_SELECTED\s*/g, ' ')
+								 .replace(/class="\s*"/g, '')
+								 .replace(/class='\s*'/g, '')
+								 .replace(/\s+class=""/g, '')
+								 .replace(/\s+class=''/g, '');
 			
-			// Assign IDs only to elements that don't have them yet
-			assignN2LIdsToDom(newElement);
+			const temp = iframeDoc.createElement('div');
+			temp.innerHTML = cleanHtml;
 			
-			// DON'T clear the snapshot - this was the bug!
-			// originalElementsSnapshot.clear(); // REMOVE THIS LINE
-			
-			selectElement(newElement);
-			scanForExistingComments();
-			updateAllCommentIconsPositions();
-		} else {
-			console.error('Invalid HTML: No element created');
-			alert('The HTML is invalid or empty.');
+			if (temp.firstChild) {
+				const newElement = temp.firstChild;
+				
+				// If there was an old ID and we have a snapshot entry for it
+				if (oldId && originalElementsSnapshot.has(oldId)) {
+					// Preserve the old ID on the new element
+					newElement.setAttribute('data-n2l-id', oldId);
+					
+					// For any children, try to map old IDs to new structure
+					// This is a simple approach - you might need more sophisticated mapping
+					const oldChildren = Array.from(selectedElement.querySelectorAll('[data-n2l-id]'));
+					const newChildren = Array.from(newElement.querySelectorAll('*'));
+					
+					// Simple positional mapping - could be improved
+					for (let i = 0; i < Math.min(oldChildren.length, newChildren.length); i++) {
+						const childOldId = oldChildren[i].getAttribute('data-n2l-id');
+						if (childOldId && originalElementsSnapshot.has(childOldId)) {
+							newChildren[i].setAttribute('data-n2l-id', childOldId);
+						}
+					}
+				}
+				
+				parentNode.replaceChild(newElement, selectedElement);
+				
+				// Assign IDs only to elements that don't have them yet
+				assignN2LIdsToDom(newElement);
+				
+				selectElement(newElement);
+				scanForExistingComments();
+				updateAllCommentIconsPositions();
+			} else {
+				console.error('Invalid HTML: No element created');
+				alert('The HTML is invalid or empty.');
+			}
+			return;
 		}
+		
+		// Otherwise, create and execute command
+		const oldHtml = selectedElement.outerHTML;
+		const newHtml = elementHtmlEditor.value.trim();
+		
+		const command = new HTMLChangeCommand(selectedElement, oldHtml, newHtml);
+		commandHistory.execute(command);
 	}
 
 	// --- Toggle Element State ---
@@ -2690,15 +3258,14 @@ footer {
 	function togglePreviewMode() {
 		if (!iframeDoc || !iframeDoc.body) {
 			previewModeActive = false;
-			previewModeBtn.textContent = 'Enter Preview Mode';
+			previewModeBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
 			previewModeBtn.classList.remove('preview-active');
 			return;
 		}
 
 		// Capture state BEFORE entering preview mode
-		if (!previewModeActive) { // This block executes when we are ABOUT to enter preview mode
-			// Ensure all elements have IDs before taking the snapshot
-			assignN2LIdsToDom(iframeDoc.body); // Ensures any elements added by user (e.g. via HTML edit) get IDs
+		if (!previewModeActive) {
+			assignN2LIdsToDom(iframeDoc.body);
 			capturePreviewStartState();
 		}
 		
@@ -2716,15 +3283,12 @@ footer {
 			for (const link of links) {
 				link.style.pointerEvents = 'auto';
 				
-				// Store reference to new handler so we can remove it later
 				link._previewClickHandler = function(event) {
 					const href = this.getAttribute('href');
 					if (href && href.startsWith('http')) {
-						// External link - prevent navigation
 						event.preventDefault();
 						console.log(`External link clicked but navigation prevented: ${href}`);
 					} else if (href && href.startsWith('#')) {
-						// Internal anchor - let it work normally but prevent full page reload
 						event.preventDefault();
 						const targetId = href.substring(1);
 						const targetElement = iframeDoc.getElementById(targetId);
@@ -2732,7 +3296,6 @@ footer {
 							targetElement.scrollIntoView({ behavior: 'smooth' });
 						}
 					}
-					// For other links (like javascript: or relative paths), let them work normally
 				};
 				link.addEventListener('click', link._previewClickHandler);
 			}
@@ -2740,12 +3303,10 @@ footer {
 			// Re-execute JavaScript to restore interactive functionality
 			if (originalJs && originalJs.trim() !== '') {
 				try {
-					// Execute JavaScript in the global scope of the iframe
 					const scriptElement = iframeDoc.createElement('script');
 					scriptElement.textContent = originalJs;
 					iframeDoc.body.appendChild(scriptElement);
 					
-					// Also dispatch a DOMContentLoaded event in case scripts are waiting for it
 					const domLoadedEvent = new Event('DOMContentLoaded', {
 						bubbles: true,
 						cancelable: true
@@ -2757,12 +3318,12 @@ footer {
 				}
 			}
 			
-			previewModeBtn.textContent = 'Exit Preview Mode';
+			previewModeBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Edit';
 			previewModeBtn.classList.add('preview-active');
 			previewIframe.classList.add('preview-mode-frame');
 			previewModeIndicator.style.display = 'block';
 		} else {
-			// EXITING PREVIEW MODE - Keep current state, just restore editor functionality
+			// EXITING PREVIEW MODE
 			
 			// Remove dynamically added script elements
 			const dynamicScripts = iframeDoc.querySelectorAll('script:not([src])');
@@ -2778,18 +3339,15 @@ footer {
 			// Restore link prevention for editor mode
 			const links = iframeDoc.getElementsByTagName('a');
 			for (const link of links) {
-				// Remove preview mode handler
 				if (link._previewClickHandler) {
 					link.removeEventListener('click', link._previewClickHandler);
 					delete link._previewClickHandler;
 				}
 				
-				// Add editor mode handler
 				link._editorClickHandler = function(event) {
 					event.preventDefault();
 					const href = link.getAttribute('href');
 					if (href && href.startsWith('#')) {
-						// Allow internal anchor navigation even in editor mode
 						const targetId = href.substring(1);
 						const targetElement = iframeDoc.getElementById(targetId);
 						if (targetElement) {
@@ -2801,11 +3359,10 @@ footer {
 				link.style.pointerEvents = 'auto';
 			}
 			
-			previewModeBtn.textContent = 'Enter Preview Mode';
+			previewModeBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
 			previewModeBtn.classList.remove('preview-active');
 			previewIframe.classList.remove('preview-mode-frame');
 			previewModeIndicator.style.display = 'none';
-			// Note: We don't revert DOM changes here. Reversion happens at export.
 		}
 	}
 
@@ -2905,30 +3462,11 @@ footer {
 			return;
 		}
 		
-		cssManager.addRule(selector, properties);
+		const elementId = selectedElement ? selectedElement.getAttribute('data-n2l-id') : null;
+		const command = new AddCSSRuleCommand(selector, properties, elementId, applyToElement);
+		commandHistory.execute(command);
 		
-		if (applyToElement && selectedElement) {
-			if (selector.startsWith('.')) {
-				const className = selector.substring(1);
-				if (!selectedElement.classList.contains(className)) {
-					selectedElement.classList.add(className);
-					const currentClasses = elementClassInput.value.trim();
-					elementClassInput.value = currentClasses ? `${currentClasses} ${className}` : className;
-				}
-			} else if (selector.startsWith('#')) {
-				const idName = selector.substring(1);
-				selectedElement.id = idName;
-				elementIdInput.value = idName;
-			}
-			updateElementInfo();
-		}
-		
-		refreshIframeStyles();
 		document.getElementById('n2l-new-rule-form').remove();
-		if (selectedElement) {
-			populateCssRules(selectedElement);
-			positionSelectorIndicator();
-		}
 	}
 	
 	function refreshIframeStyles() {
@@ -2975,21 +3513,27 @@ footer {
 	
 	function applyText() {
 		if (!selectedElement) return;
-		const tagName = selectedElement.tagName.toLowerCase();
-		if (tagName === 'textarea') {
-			selectedElement.value = textEditor.value;
-		} else {
-			let foundTextNode = false;
-			Array.from(selectedElement.childNodes).forEach(node => {
-				if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
-					node.textContent = textEditor.value;
-					foundTextNode = true;
-				}
-			});
-			if (!foundTextNode || selectedElement.childNodes.length === 0) {
-				selectedElement.textContent = textEditor.value;
+		
+		// If command history is executing, use original logic
+		if (commandHistory.isExecutingCommand) {
+			const tagName = selectedElement.tagName.toLowerCase();
+			
+			if (tagName === 'textarea') {
+				selectedElement.value = wysiwygEditor.innerText;
+			} else {
+				// For other elements, replace innerHTML
+				selectedElement.innerHTML = wysiwygEditor.innerHTML;
 			}
+			return;
 		}
+		
+		// Otherwise, create and execute command
+		const oldContent = selectedElement.tagName.toLowerCase() === 'textarea' ? 
+			selectedElement.value : selectedElement.innerHTML;
+		const newContent = wysiwygEditor.innerHTML;
+		
+		const command = new TextChangeCommand(selectedElement, oldContent, newContent, true);
+		commandHistory.execute(command);
 	}
 	
 	function applyImageSource() {
@@ -3001,26 +3545,35 @@ footer {
 	// --- Toolbar Actions ---
 	function removeSelectedElement() {
 		if (!selectedElement) return;
+		
+		// If command history is executing, use original logic
+		if (commandHistory.isExecutingCommand) {
+			if (commentedElements.has(selectedElement)) {
+				const entry = commentedElements.get(selectedElement);
+				if (entry.commentNode && entry.commentNode.parentNode) entry.commentNode.remove();
+				if (entry.iconElement && entry.iconElement.parentNode) entry.iconElement.remove();
+				commentedElements.delete(selectedElement);
+			}
+			// Also check for sibling comments that might now be orphaned if they were associated with this element visually
+			const prevSib = selectedElement.previousSibling;
+			if (prevSib && prevSib.nodeType === Node.COMMENT_NODE && prevSib.nodeValue.includes('N2L_COMMENT:')) {
+				// This comment might have been for 'selectedElement' (as 'above')
+				// Need a more robust way to find if this comment has an icon and if that icon belongs to 'selectedElement'
+				// For now, this manual removal is a bit risky without checking the map.
+				// It's safer to rely on commentedElements map for managed comments.
+			}
 
-        if (commentedElements.has(selectedElement)) {
-            const entry = commentedElements.get(selectedElement);
-            if (entry.commentNode && entry.commentNode.parentNode) entry.commentNode.remove();
-            if (entry.iconElement && entry.iconElement.parentNode) entry.iconElement.remove();
-            commentedElements.delete(selectedElement);
-        }
-        // Also check for sibling comments that might now be orphaned if they were associated with this element visually
-        const prevSib = selectedElement.previousSibling;
-        if (prevSib && prevSib.nodeType === Node.COMMENT_NODE && prevSib.nodeValue.includes('N2L_COMMENT:')) {
-            // This comment might have been for 'selectedElement' (as 'above')
-            // Need a more robust way to find if this comment has an icon and if that icon belongs to 'selectedElement'
-            // For now, this manual removal is a bit risky without checking the map.
-            // It's safer to rely on commentedElements map for managed comments.
-        }
-
-		const elementToRemove = selectedElement; 
-		deselectElement(); 
-		elementToRemove.remove();
-        updateAllCommentIconsPositions(); // Update positions as layout might change
+			const elementToRemove = selectedElement; 
+			deselectElement(); 
+			elementToRemove.remove();
+			updateAllCommentIconsPositions(); // Update positions as layout might change
+			return;
+		}
+		
+		// Otherwise, create and execute command
+		const command = new RemoveElementCommand(selectedElement);
+		commandHistory.execute(command);
+		deselectElement();
 	}
 
 	function copyElement(above) {
@@ -3275,7 +3828,7 @@ footer {
 			
 			const dialog = document.createElement('div');
 			dialog.style.position = 'fixed';
-			dialog.style.top = '5vh'; // Use vh for better centering
+			dialog.style.top = '0'; // Use vh for better centering
 			dialog.style.left = '50%';
 			dialog.style.transform = 'translateX(-50%)';
 			dialog.style.backgroundColor = 'white';
@@ -3284,7 +3837,8 @@ footer {
 			dialog.style.zIndex = '1001';
 			dialog.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
 			dialog.style.width = '80%'; // Make dialog wider
-			dialog.style.maxHeight = '90vh'; // Max height
+			dialog.style.maxHeight = '100vh'; // Max height
+			dialog.style.height = '100vh';
 			dialog.style.overflowY = 'auto'; // Scroll if content too tall
 			dialog.innerHTML = '<h3>Processed Code (Modified HTML + CSS/JS):</h3>';
 
