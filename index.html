@@ -1694,10 +1694,9 @@ input:checked + .n2l-slider-switch:before {
 <!-- New getting started section -->
 <div class="n2l-getting-started">
 	<h4>Getting Started</h4>
-	<p>To begin editing:</p>
 	<ul>
 		<li><strong>Click</strong> on any element to select and edit it</li>
-		<li>Enter <strong>Preview Mode</strong> to interact with dynamic content (expandable sections, lightboxes, etc.)</li>
+		<li>Enter <strong>Preview Mode</strong> to interact with dynamic content (expandable sections, lightboxes, tabs)</li>
 		<li>Exit Preview Mode to continue editing newly revealed elements</li>
 	</ul>
 </div>
@@ -2393,10 +2392,12 @@ footer {
 					return;
 				}
 
-                // ***** MODIFIED: Assign initial IDs and clear snapshot *****
-                assignN2LIdsToDom(iframeDoc.body);
-                originalElementsSnapshot.clear(); // Reset snapshot, new content loaded
-
+				// Assign initial IDs 
+				assignN2LIdsToDom(iframeDoc.body);
+				
+				// IMPORTANT: Capture initial state right after loading
+				// This ensures edits made before entering preview mode are preserved
+				capturePreviewStartState();
 
 				iframeDoc.body.addEventListener('click', handleIframeClick, true);
 
@@ -2608,36 +2609,62 @@ footer {
 	function applyHtmlChanges() {
 		if (!selectedElement) return;
 		
-        // If selected element had a comment, remove its icon and map entry
-        if (commentedElements.has(selectedElement)) {
-            const entry = commentedElements.get(selectedElement);
-            if (entry.iconElement && entry.iconElement.parentNode) entry.iconElement.remove();
-            // The comment node itself might be part of selectedElement.outerHTML or a sibling.
-            // If it's a sibling, it might be picked up by scanForExistingComments later.
-            commentedElements.delete(selectedElement);
-        }
-
 		const parentNode = selectedElement.parentNode;
 		if (!parentNode) return;
 		
+		// Get the old element's ID before replacing
+		const oldId = selectedElement.getAttribute('data-n2l-id');
+		
+		// If selected element had a comment, handle it
+		if (commentedElements.has(selectedElement)) {
+			const entry = commentedElements.get(selectedElement);
+			if (entry.iconElement && entry.iconElement.parentNode) entry.iconElement.remove();
+			commentedElements.delete(selectedElement);
+		}
+		
 		let cleanHtml = elementHtmlEditor.value.trim();
-		cleanHtml = cleanHtml.replace(/\s*N2L_EDITOR_SELECTED\s*/g, ' ').replace(/class="\s*"/g, '').replace(/class='\s*'/g, '').replace(/\s+class=""/g, '').replace(/\s+class=''/g, '');
+		cleanHtml = cleanHtml.replace(/\s*N2L_EDITOR_SELECTED\s*/g, ' ')
+							 .replace(/class="\s*"/g, '')
+							 .replace(/class='\s*'/g, '')
+							 .replace(/\s+class=""/g, '')
+							 .replace(/\s+class=''/g, '');
 		
 		const temp = iframeDoc.createElement('div');
 		temp.innerHTML = cleanHtml;
 		
 		if (temp.firstChild) {
-			const oldElement = selectedElement;
-            const newElement = temp.firstChild;
+			const newElement = temp.firstChild;
+			
+			// If there was an old ID and we have a snapshot entry for it
+			if (oldId && originalElementsSnapshot.has(oldId)) {
+				// Preserve the old ID on the new element
+				newElement.setAttribute('data-n2l-id', oldId);
+				
+				// For any children, try to map old IDs to new structure
+				// This is a simple approach - you might need more sophisticated mapping
+				const oldChildren = Array.from(selectedElement.querySelectorAll('[data-n2l-id]'));
+				const newChildren = Array.from(newElement.querySelectorAll('*'));
+				
+				// Simple positional mapping - could be improved
+				for (let i = 0; i < Math.min(oldChildren.length, newChildren.length); i++) {
+					const childOldId = oldChildren[i].getAttribute('data-n2l-id');
+					if (childOldId && originalElementsSnapshot.has(childOldId)) {
+						newChildren[i].setAttribute('data-n2l-id', childOldId);
+					}
+				}
+			}
+			
 			parentNode.replaceChild(newElement, selectedElement);
 			
-            // ***** MODIFIED: Assign IDs to new structure and clear snapshot *****
-            assignN2LIdsToDom(newElement); 
-            originalElementsSnapshot.clear(); // DOM structure significantly changed
-
-            selectElement(newElement); // Select the new element
-            scanForExistingComments(); // Re-scan for comments that might now associate with new structure
-            updateAllCommentIconsPositions();
+			// Assign IDs only to elements that don't have them yet
+			assignN2LIdsToDom(newElement);
+			
+			// DON'T clear the snapshot - this was the bug!
+			// originalElementsSnapshot.clear(); // REMOVE THIS LINE
+			
+			selectElement(newElement);
+			scanForExistingComments();
+			updateAllCommentIconsPositions();
 		} else {
 			console.error('Invalid HTML: No element created');
 			alert('The HTML is invalid or empty.');
@@ -3196,7 +3223,6 @@ footer {
         updateAllCommentIconsPositions(); // Position all icons after scanning
     }
 
-
 	// --- Get Processed Code ---
 	function showProcessedCode() {
 		if (!iframeDoc || !iframeDoc.body) {
@@ -3206,69 +3232,47 @@ footer {
 
 		try {
 			const processedBody = iframeDoc.body.cloneNode(true);
-            
-            const iconContainerClone = processedBody.querySelector('#n2l-comment-icon-container');
-            if (iconContainerClone) iconContainerClone.remove();
+			
+			const iconContainerClone = processedBody.querySelector('#n2l-comment-icon-container');
+			if (iconContainerClone) iconContainerClone.remove();
 				
 			processedBody.querySelectorAll('.N2L_EDITOR_SELECTED').forEach(el => {
 				el.classList.remove('N2L_EDITOR_SELECTED');
 				if (el.classList.length === 0) el.removeAttribute('class');
 			});
 				
-            // --- MODIFIED LOGIC FOR REVERTING JS CHANGES AND REMOVING DYNAMIC CONTENT ---
-            const elementsToRemove = [];
-            const allElementsInClone = Array.from(processedBody.querySelectorAll('*')); // Get static list before modifications
+			// --- MODIFIED LOGIC FOR REVERTING JS CHANGES AND REMOVING DYNAMIC CONTENT ---
+			const elementsToRemove = [];
+			const allElementsInClone = Array.from(processedBody.querySelectorAll('*')); // Get static list before modifications
 
-            allElementsInClone.forEach(el => {
-                const id = el.getAttribute('data-n2l-id');
-                if (id && originalElementsSnapshot.has(id)) {
-                    // This element existed before preview: revert its class and style attributes
-                    const snapshot = originalElementsSnapshot.get(id);
-                    el.className = snapshot.className;       // Revert class
-                    el.style.cssText = snapshot.styleCssText; // Revert style
-                } else if (id) { // Has an ID, but it's not in the snapshot (i.e., added during preview)
-                    elementsToRemove.push(el);
-                } else { 
-                    // No ID - this element might be dynamically generated content that wasn't assigned an ID, or part of a larger user edit.
-                    // This logic assumes dynamically generated content for removal *must* have been given an ID by our system.
-                    // If JS creates elements without our system assigning IDs, they might remain.
-                    // For safety, let's stick to removing only identified new elements.
-                    // If an element has no ID but also is not in the snapshot, it's harder to classify without more complex diffing.
-                    // The current strategy focuses on elements that *did* get an ID but were not in the original snapshot.
-                    // Let's refine: if an element has a data-n2l-id, it *must* be in snapshot or it's new.
-                    // If it *doesn't* have a data-n2l-id, it's either user-pasted HTML without IDs,
-                    // or JS generated it and we didn't catch it to assign an ID (less likely with assignN2LIdsToDom).
-                    // The safest is to only remove elements with a data-n2l-id that is *not* in the snapshot.
-                }
-            });
+			allElementsInClone.forEach(el => {
+				const id = el.getAttribute('data-n2l-id');
+				if (id && originalElementsSnapshot.has(id)) {
+					// This element existed before preview: revert its class and style attributes
+					const snapshot = originalElementsSnapshot.get(id);
+					el.className = snapshot.className;       // Revert class
+					el.style.cssText = snapshot.styleCssText; // Revert style
+				} else if (id) { // Has an ID, but it's not in the snapshot (i.e., added during preview)
+					elementsToRemove.push(el);
+				}
+			});
 
-            elementsToRemove.forEach(el => {
-                if (el.parentNode) { // Ensure element is still in DOM before removing
-                     el.remove();
-                }
-            });
+			elementsToRemove.forEach(el => {
+				if (el.parentNode) { // Ensure element is still in DOM before removing
+					 el.remove();
+				}
+			});
 
-            // Remove all data-n2l-id attributes from the final output
-            processedBody.querySelectorAll('[data-n2l-id]').forEach(el => el.removeAttribute('data-n2l-id'));
-            // --- END OF MODIFIED LOGIC ---
+			// Remove all data-n2l-id attributes from the final output
+			processedBody.querySelectorAll('[data-n2l-id]').forEach(el => el.removeAttribute('data-n2l-id'));
+			// --- END OF MODIFIED LOGIC ---
 				
 			let processedHTML = processedBody.innerHTML.trim();
 			
 			processedHTML = processedHTML.replace(/\s*N2L_EDITOR_SELECTED\s*/g, ' ').replace(/class="\s*"/g, '').replace(/class='\s*'/g, '').replace(/\s+class=""/g, '').replace(/\s+class=''/g, '').replace(/class="\s+/g, 'class="').replace(/class='\s+/g, "class='");
 
 			const processedCSS = cssManager.generateCss();
-			let finalCode = processedHTML;
-
-			if (processedCSS) finalCode += `\n\n<style>\n${processedCSS.trim()}\n</style>`;
-			if (originalJs) finalCode += `\n\n<script>\n${originalJs.trim()}\n<\/script>`;
-
-			const outputArea = document.createElement('textarea');
-			outputArea.style.width = '90%';
-			outputArea.style.height = '400px';
-			outputArea.style.fontFamily = 'monospace';
-			outputArea.value = finalCode;
-			outputArea.id = "processed-code-textarea";
-
+			
 			const dialog = document.createElement('div');
 			dialog.style.position = 'fixed';
 			dialog.style.top = '5vh'; // Use vh for better centering
@@ -3279,29 +3283,51 @@ footer {
 			dialog.style.border = '1px solid black';
 			dialog.style.zIndex = '1001';
 			dialog.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
-            dialog.style.width = '80%'; // Make dialog wider
-            dialog.style.maxHeight = '90vh'; // Max height
-            dialog.style.overflowY = 'auto'; // Scroll if content too tall
+			dialog.style.width = '80%'; // Make dialog wider
+			dialog.style.maxHeight = '90vh'; // Max height
+			dialog.style.overflowY = 'auto'; // Scroll if content too tall
 			dialog.innerHTML = '<h3>Processed Code (Modified HTML + CSS/JS):</h3>';
 
-            // Add the LLM prompt suggestion
-            const promptSuggestion = document.createElement('p');
-            promptSuggestion.style.fontStyle = 'italic';
-            promptSuggestion.style.fontSize = '0.9em';
-            promptSuggestion.style.marginBottom = '10px';
-            promptSuggestion.style.padding = '8px';
-            promptSuggestion.style.backgroundColor = '#e9e9e9'; // Lighter grey
-            promptSuggestion.style.border = '1px solid #ccc';
-            promptSuggestion.style.borderRadius = '3px';
-            promptSuggestion.innerHTML = "<b>A prompt you can use to ask the LLM to work on this according to your comments:</b><br>Please review the code and the comments I added for you. Edit it guided by the comments. Provide the full code with no placeholders or omissions, and make sure that all functionalities remain intact.";
-            dialog.appendChild(promptSuggestion);
+			// Add the LLM prompt suggestion
+			const promptSuggestion = document.createElement('p');
+			promptSuggestion.style.fontSize = '0.9em';
+			promptSuggestion.style.marginBottom = '10px';
+			promptSuggestion.style.padding = '8px';
+			promptSuggestion.style.borderRadius = '3px';
+			promptSuggestion.innerHTML = "<b>A prompt you can use to ask the LLM to work on this according to your comments:</b><br>Please review the code and the comments I added for you. Edit it guided by the comments. Provide the full code with no placeholders or omissions, and make sure that all functionalities remain intact.";
+			dialog.appendChild(promptSuggestion);
 			
-			dialog.appendChild(outputArea);
+			// Add toggle for including prompt in output
+			const toggleContainer = document.createElement('div');
+			toggleContainer.style.marginBottom = '10px';
+			toggleContainer.style.padding = '8px';
+			toggleContainer.style.backgroundColor = '#f5f5f5';
+			toggleContainer.style.border = '1px solid #ddd';
+			toggleContainer.style.borderRadius = '3px';
 			
+			const toggleLabel = document.createElement('label');
+			toggleLabel.style.display = 'flex';
+			toggleLabel.style.alignItems = 'center';
+			toggleLabel.style.cursor = 'pointer';
+			toggleLabel.style.fontSize = '0.9em';
+			
+			const toggleCheckbox = document.createElement('input');
+			toggleCheckbox.type = 'checkbox';
+			toggleCheckbox.id = 'prepend-prompt-toggle';
+			toggleCheckbox.checked = true; // Default to true
+			toggleCheckbox.style.marginRight = '8px';
+			
+			toggleLabel.appendChild(toggleCheckbox);
+			toggleLabel.appendChild(document.createTextNode('Include prompt instructions as comment in output code'));
+			toggleContainer.appendChild(toggleLabel);
+			dialog.appendChild(toggleContainer);
+			
+			// Create button container and add it BEFORE the textarea
 			const buttonContainer = document.createElement('div');
 			buttonContainer.style.display = 'flex';
-            buttonContainer.style.justifyContent = 'flex-end'; // Align buttons to the right
-			buttonContainer.style.marginTop = '10px';
+			buttonContainer.style.justifyContent = 'flex-end'; // Align buttons to the right
+			buttonContainer.style.marginBottom = '10px'; // Space between buttons and textarea
+			buttonContainer.style.marginTop = '0'; // Remove top margin since it's now above
 			
 			const copyBtn = document.createElement('button');
 			copyBtn.textContent = 'Copy to Clipboard';
@@ -3310,21 +3336,21 @@ footer {
 				const textarea = document.getElementById('processed-code-textarea');
 				textarea.select();
 				try {
-                    navigator.clipboard.writeText(textarea.value).then(() => {
-                        copyBtn.textContent = 'Copied!';
-                        setTimeout(() => { copyBtn.textContent = 'Copy to Clipboard'; }, 2000);
-                    }).catch(err => {
-                        console.warn('Async clipboard copy failed, falling back to execCommand.');
-                        document.execCommand('copy'); // Fallback for older browsers / non-secure contexts
-                        copyBtn.textContent = 'Copied! (fallback)';
-                        setTimeout(() => { copyBtn.textContent = 'Copy to Clipboard'; }, 2000);
-                    });
-                } catch (e) {
-                    console.warn('Clipboard API not available, falling back to execCommand.');
-                    document.execCommand('copy');
-                    copyBtn.textContent = 'Copied! (fallback)';
-                    setTimeout(() => { copyBtn.textContent = 'Copy to Clipboard'; }, 2000);
-                }
+					navigator.clipboard.writeText(textarea.value).then(() => {
+						copyBtn.textContent = 'Copied!';
+						setTimeout(() => { copyBtn.textContent = 'Copy to Clipboard'; }, 2000);
+					}).catch(err => {
+						console.warn('Async clipboard copy failed, falling back to execCommand.');
+						document.execCommand('copy'); // Fallback for older browsers / non-secure contexts
+						copyBtn.textContent = 'Copied! (fallback)';
+						setTimeout(() => { copyBtn.textContent = 'Copy to Clipboard'; }, 2000);
+					});
+				} catch (e) {
+					console.warn('Clipboard API not available, falling back to execCommand.');
+					document.execCommand('copy');
+					copyBtn.textContent = 'Copied! (fallback)';
+					setTimeout(() => { copyBtn.textContent = 'Copy to Clipboard'; }, 2000);
+				}
 			};
 			buttonContainer.appendChild(copyBtn);
 			
@@ -3334,7 +3360,44 @@ footer {
 			closeBtn.onclick = () => document.body.removeChild(dialog);
 			buttonContainer.appendChild(closeBtn);
 			
+			// Add button container BEFORE creating the textarea
 			dialog.appendChild(buttonContainer);
+			
+			// Now create and add the textarea
+			const outputArea = document.createElement('textarea');
+			outputArea.style.width = '100%';
+			outputArea.style.height = '400px';
+			outputArea.style.fontFamily = 'monospace';
+			outputArea.id = "processed-code-textarea";
+			
+			// Function to update the output area content
+			const updateOutputContent = () => {
+				let finalCode = '';
+				
+				// Prepend prompt as HTML comment if toggle is checked
+				if (toggleCheckbox.checked) {
+					const promptComment = `<!--
+	LLM PROMPT:
+	Please review the code and the comments I added for you. Edit it guided by the comments. Provide the full code with no placeholders or omissions, and make sure that all functionalities remain intact.
+	-->\n\n`;
+					finalCode += promptComment;
+				}
+				
+				finalCode += processedHTML;
+
+				if (processedCSS) finalCode += `\n\n<style>\n${processedCSS.trim()}\n</style>`;
+				if (originalJs) finalCode += `\n\n<script>\n${originalJs.trim()}\n<\/script>`;
+				
+				outputArea.value = finalCode;
+			};
+			
+			// Initial content update
+			updateOutputContent();
+			
+			// Update content when toggle changes
+			toggleCheckbox.addEventListener('change', updateOutputContent);
+			
+			dialog.appendChild(outputArea);
 
 			const existingDialog = document.querySelector('.n2l-output-dialog');
 			if (existingDialog) document.body.removeChild(existingDialog);
