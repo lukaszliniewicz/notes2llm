@@ -1887,12 +1887,12 @@ input:checked + .n2l-slider-switch:before {
 
 <!-- Floating Action Toolbar -->
 <div id="n2l-action-toolbar">
-	<button id="n2l-copy-above-btn" title="Copy Above"><i class="fas fa-arrow-up"></i> <i class="far fa-copy"></i></button>
-	<button id="n2l-copy-below-btn" title="Copy Below"><i class="far fa-copy"></i> <i class="fas fa-arrow-down"></i></button>
-	<button id="n2l-add-comment-above-btn" title="Comment Above"><i class="fas fa-arrow-up"></i> <i class="far fa-comment-dots"></i></button>
-	<button id="n2l-add-comment-below-btn" title="Comment Below"><i class="far fa-comment-dots"></i> <i class="fas fa-arrow-down"></i></button>
-	<button id="n2l-toggle-state-btn" title="Toggle Element State"><i class="fas fa-exchange-alt"></i></button>
-	<button id="n2l-remove-btn" class="danger" title="Remove Element"><i class="fas fa-trash-alt"></i></button>
+    <button id="n2l-move-up-btn" title="Move Up"><i class="fas fa-arrow-up"></i></button>
+    <button id="n2l-move-down-btn" title="Move Down"><i class="fas fa-arrow-down"></i></button>
+    <button id="n2l-copy-btn" title="Copy Element"><i class="far fa-copy"></i></button>
+    <button id="n2l-add-comment-btn" title="Add Comment"><i class="far fa-comment-dots"></i></button>
+    <button id="n2l-toggle-state-btn" title="Toggle Element State"><i class="fas fa-exchange-alt"></i></button>
+    <button id="n2l-remove-btn" class="danger" title="Remove Element"><i class="fas fa-trash-alt"></i></button>
 </div>
 
 
@@ -2398,10 +2398,10 @@ input:checked + .n2l-slider-switch:before {
 	const applyHtmlChangesBtn = document.getElementById('n2l-apply-html-changes');
 
 	// Action Toolbar Buttons
-	const copyAboveBtn = document.getElementById('n2l-copy-above-btn');
-	const copyBelowBtn = document.getElementById('n2l-copy-below-btn');
-	const addCommentAboveBtn = document.getElementById('n2l-add-comment-above-btn');
-	const addCommentBelowBtn = document.getElementById('n2l-add-comment-below-btn');
+	const moveUpBtn = document.getElementById('n2l-move-up-btn');
+	const moveDownBtn = document.getElementById('n2l-move-down-btn');
+	const copyBtn = document.getElementById('n2l-copy-btn');
+	const addCommentBtn = document.getElementById('n2l-add-comment-btn');
 	const toggleStateBtn = document.getElementById('n2l-toggle-state-btn');
 	const removeBtn = document.getElementById('n2l-remove-btn');
 
@@ -2686,16 +2686,14 @@ footer {
 		applySrcChange.addEventListener('click', applyImageSource);
 		applyHtmlChangesBtn.addEventListener('click', applyHtmlChanges);
 		addCssRuleBtn.addEventListener('click', showAddCssRuleForm);
-		
-		// NEW: Add event listener for inline style
 		document.getElementById('n2l-apply-inline-style').addEventListener('click', applyInlineStyle);
 
 		// Add listeners for action toolbar buttons
 		removeBtn.addEventListener('click', removeSelectedElement);
-		copyAboveBtn.addEventListener('click', () => copyElement(true));
-		copyBelowBtn.addEventListener('click', () => copyElement(false));
-		addCommentAboveBtn.addEventListener('click', () => addCommentForElement(true));
-		addCommentBelowBtn.addEventListener('click', () => addCommentForElement(false));
+		copyBtn.addEventListener('click', copyElement);
+		addCommentBtn.addEventListener('click', addCommentForElement);
+		moveUpBtn.addEventListener('click', moveElementUp);
+		moveDownBtn.addEventListener('click', moveElementDown);
 		toggleStateBtn.addEventListener('click', toggleElementState);
 
 		// Hide toolbar if clicking outside the iframe
@@ -3800,7 +3798,7 @@ footer {
 		deselectElement();
 	}
 
-	function copyElement(above) {
+	function copyElement() {
 		if (!selectedElement) return;
 		const clone = selectedElement.cloneNode(true);
 		clone.classList.remove('N2L_EDITOR_SELECTED');
@@ -3827,11 +3825,8 @@ footer {
 			}
 		});
 
-		if (above) {
-			selectedElement.parentNode.insertBefore(clone, selectedElement);
-		} else {
-			selectedElement.parentNode.insertBefore(clone, selectedElement.nextSibling);
-		}
+		// Insert after selected element
+		selectedElement.parentNode.insertBefore(clone, selectedElement.nextSibling);
 		updateAllCommentIconsPositions();
 	}
 
@@ -3855,7 +3850,7 @@ footer {
         return container;
     }
 
-    function addCommentForElement(above) {
+	function addCommentForElement() {
 		if (!selectedElement) return;
 		const commentText = prompt("Enter comment text for the LLM:", "TODO: Refine this section");
 		if (commentText === null || commentText.trim() === "") return;
@@ -3863,13 +3858,90 @@ footer {
 		const commentNode = iframeDoc.createComment(` N2L_COMMENT: ${commentText.trim()} `);
 		const targetElement = selectedElement; 
 
-		if (above) {
-			targetElement.parentNode.insertBefore(commentNode, targetElement);
-		} else {
-			targetElement.parentNode.insertBefore(commentNode, targetElement.nextSibling);
+		// By default, place comment before the element (above)
+		targetElement.parentNode.insertBefore(commentNode, targetElement);
+		createOrUpdateCommentIcon(targetElement, commentNode, 'above');
+		updateAllCommentIconsPositions();
+	}
+
+	function moveElementUp() {
+		if (!selectedElement || !selectedElement.parentNode) return;
+		
+		const parent = selectedElement.parentNode;
+		const previousElement = selectedElement.previousElementSibling;
+		
+		if (previousElement) {
+			// Get any associated comment nodes
+			let associatedComments = [];
+			for (const [element, data] of commentedElements.entries()) {
+				if (element === selectedElement) {
+					associatedComments.push(data);
+				}
+			}
+			
+			// Move element before its previous sibling
+			parent.insertBefore(selectedElement, previousElement);
+			
+			// Move any associated comment nodes with the element
+			associatedComments.forEach(commentData => {
+				if (commentData.commentNode && commentData.commentNode.parentNode) {
+					if (commentData.position === 'above') {
+						parent.insertBefore(commentData.commentNode, selectedElement);
+					} else if (commentData.position === 'below') {
+						parent.insertBefore(commentData.commentNode, selectedElement.nextSibling);
+					}
+				}
+			});
+			
+			updateAllCommentIconsPositions();
+			
+			// Maintain selection
+			selectElement(selectedElement);
 		}
-		createOrUpdateCommentIcon(targetElement, commentNode, above ? 'above' : 'below');
-        updateAllCommentIconsPositions();
+	}
+
+	function moveElementDown() {
+		if (!selectedElement || !selectedElement.parentNode) return;
+		
+		const parent = selectedElement.parentNode;
+		const nextElement = selectedElement.nextElementSibling;
+		
+		if (nextElement) {
+			// Get any associated comment nodes
+			let associatedComments = [];
+			for (const [element, data] of commentedElements.entries()) {
+				if (element === selectedElement) {
+					associatedComments.push(data);
+				}
+			}
+			
+			// Since we're moving down, we need to insert after the next element
+			// This means we insert before the element after next (if any)
+			const nextNextElement = nextElement.nextElementSibling;
+			
+			if (nextNextElement) {
+				parent.insertBefore(selectedElement, nextNextElement);
+			} else {
+				// If there's no next-next sibling, append to the end
+				parent.appendChild(selectedElement);
+			}
+			
+			// Move any associated comment nodes with the element
+			associatedComments.forEach(commentData => {
+				if (commentData.commentNode && commentData.commentNode.parentNode) {
+					if (commentData.position === 'above') {
+						parent.insertBefore(commentData.commentNode, selectedElement);
+					} else if (commentData.position === 'below') {
+						parent.insertBefore(commentData.commentNode, selectedElement.nextSibling);
+					}
+				}
+			});
+			
+			updateAllCommentIconsPositions();
+			
+			// Maintain selection
+			selectElement(selectedElement);
+		}
 	}
 
     function createOrUpdateCommentIcon(element, commentNode, position) {
