@@ -1850,8 +1850,15 @@ input:checked + .n2l-slider-switch:before {
 					<button id="n2l-add-css-rule-btn">Add Rule</button>
 				</div>
 				
+				<!-- NEW: Inline Style Editor -->
+				<div id="n2l-inline-style-control" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
+					<label for="n2l-inline-style-input">Inline Style:</label>
+					<textarea id="n2l-inline-style-input" placeholder="color: red; margin: 10px;"></textarea>
+					<button id="n2l-apply-inline-style">Apply Inline Style</button>
+				</div>
+				
 				<!-- CSS rules editor -->
-				<div id="n2l-css-rules-editor" style="margin-top: 15px;">
+				<div id="n2l-css-rules-editor" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
 					<!-- CSS rules will be populated here -->
 					<div class="n2l-no-rules-message">No CSS rules found for this element.</div>
 				</div>
@@ -2679,6 +2686,9 @@ footer {
 		applySrcChange.addEventListener('click', applyImageSource);
 		applyHtmlChangesBtn.addEventListener('click', applyHtmlChanges);
 		addCssRuleBtn.addEventListener('click', showAddCssRuleForm);
+		
+		// NEW: Add event listener for inline style
+		document.getElementById('n2l-apply-inline-style').addEventListener('click', applyInlineStyle);
 
 		// Add listeners for action toolbar buttons
 		removeBtn.addEventListener('click', removeSelectedElement);
@@ -3118,6 +3128,37 @@ footer {
 		selectorIndicator.style.display = 'block';
 	}
 
+	function applyInlineStyle() {
+		if (!selectedElement) return;
+		
+		const oldStyleCssText = selectedElement.style.cssText;
+		const newStyleCssText = document.getElementById('n2l-inline-style-input').value;
+		
+		// If using command history, create an inline style command
+		if (!commandHistory.isExecutingCommand) {
+			// You could create a specific command for style changes if needed
+			// For now, we'll use HTMLChangeCommand as the effect is similar
+			const oldHtml = selectedElement.outerHTML;
+			selectedElement.style.cssText = newStyleCssText;
+			const newHtml = selectedElement.outerHTML;
+			
+			const command = new HTMLChangeCommand(selectedElement, oldHtml, newHtml);
+			commandHistory.execute(command);
+		} else {
+			// Direct application if being called from a command
+			selectedElement.style.cssText = newStyleCssText;
+		}
+		
+		// Update snapshot
+		const id = selectedElement.getAttribute('data-n2l-id');
+		if (id) {
+			originalElementsSnapshot.set(id, {
+				className: selectedElement.className,
+				styleCssText: selectedElement.style.cssText
+			});
+		}
+	}
+
 	function populateControls(el) {
 		const tagName = el.tagName.toLowerCase();
 		const id = el.id ? `#${el.id}` : '';
@@ -3129,6 +3170,10 @@ footer {
 			.filter(c => c !== 'N2L_EDITOR_SELECTED')
 			.join(' ');
 		elementIdInput.value = el.id || '';
+
+		// NEW: Populate inline style input
+		const inlineStyleInput = document.getElementById('n2l-inline-style-input');
+		inlineStyleInput.value = el.style.cssText;
 
 		const textEditableTags = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'a', 'span', 'div', 'td', 'th', 'button', 'label'];
 		if (textEditableTags.includes(tagName) || (el.hasChildNodes() && Array.from(el.childNodes).some(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim() !== ''))) {
@@ -3186,10 +3231,10 @@ footer {
 			
 			let cleanHtml = elementHtmlEditor.value.trim();
 			cleanHtml = cleanHtml.replace(/\s*N2L_EDITOR_SELECTED\s*/g, ' ')
-								 .replace(/class="\s*"/g, '')
-								 .replace(/class='\s*'/g, '')
-								 .replace(/\s+class=""/g, '')
-								 .replace(/\s+class=''/g, '');
+								   .replace(/class="\s*"/g, '')
+								   .replace(/class='\s*'/g, '')
+								   .replace(/\s+class=""/g, '')
+								   .replace(/\s+class=''/g, '');
 			
 			const temp = iframeDoc.createElement('div');
 			temp.innerHTML = cleanHtml;
@@ -3203,7 +3248,6 @@ footer {
 					newElement.setAttribute('data-n2l-id', oldId);
 					
 					// For any children, try to map old IDs to new structure
-					// This is a simple approach - you might need more sophisticated mapping
 					const oldChildren = Array.from(selectedElement.querySelectorAll('[data-n2l-id]'));
 					const newChildren = Array.from(newElement.querySelectorAll('*'));
 					
@@ -3220,6 +3264,15 @@ footer {
 				
 				// Assign IDs only to elements that don't have them yet
 				assignN2LIdsToDom(newElement);
+				
+				// NEW: Update snapshot for the new element
+				const newId = newElement.getAttribute('data-n2l-id');
+				if (newId) {
+					originalElementsSnapshot.set(newId, {
+						className: newElement.className,
+						styleCssText: newElement.style.cssText
+					});
+				}
 				
 				selectElement(newElement);
 				scanForExistingComments();
@@ -3254,7 +3307,6 @@ footer {
 		}, 100);
 	}
 
-	// --- Preview Mode Toggle ---
 	function togglePreviewMode() {
 		if (!iframeDoc || !iframeDoc.body) {
 			previewModeActive = false;
@@ -3263,65 +3315,140 @@ footer {
 			return;
 		}
 
-		// Capture state BEFORE entering preview mode
-		if (!previewModeActive) {
-			assignN2LIdsToDom(iframeDoc.body);
-			capturePreviewStartState();
-		}
-		
 		previewModeActive = !previewModeActive;
-		const iconContainer = iframeDoc.getElementById('n2l-comment-icon-container');
 		
 		if (previewModeActive) {
 			// ENTERING PREVIEW MODE
-			iframeDoc.body.removeEventListener('click', handleIframeClick, true);
-			deselectElement();
-			if (iconContainer) iconContainer.style.display = 'none';
-
-			// Handle links more carefully
-			const links = iframeDoc.getElementsByTagName('a');
-			for (const link of links) {
-				link.style.pointerEvents = 'auto';
+			
+			// First time: capture state. Subsequent times: export and reload
+			if (!originalElementsSnapshot || originalElementsSnapshot.size === 0) {
+				// First time entering preview mode - capture initial state
+				assignN2LIdsToDom(iframeDoc.body);
+				capturePreviewStartState();
+			} else {
+				// Subsequent times - get clean code like export does
+				const processedBody = iframeDoc.body.cloneNode(true);
 				
-				link._previewClickHandler = function(event) {
-					const href = this.getAttribute('href');
-					if (href && href.startsWith('http')) {
-						event.preventDefault();
-						console.log(`External link clicked but navigation prevented: ${href}`);
-					} else if (href && href.startsWith('#')) {
-						event.preventDefault();
-						const targetId = href.substring(1);
-						const targetElement = iframeDoc.getElementById(targetId);
-						if (targetElement) {
-							targetElement.scrollIntoView({ behavior: 'smooth' });
-						}
+				// Remove icon container
+				const iconContainerClone = processedBody.querySelector('#n2l-comment-icon-container');
+				if (iconContainerClone) iconContainerClone.remove();
+				
+				// Remove editor selection classes
+				processedBody.querySelectorAll('.N2L_EDITOR_SELECTED').forEach(el => {
+					el.classList.remove('N2L_EDITOR_SELECTED');
+					if (el.classList.length === 0) el.removeAttribute('class');
+				});
+				
+				// Revert to original state and remove dynamic elements
+				const elementsToRemove = [];
+				const allElementsInClone = Array.from(processedBody.querySelectorAll('*'));
+				
+				allElementsInClone.forEach(el => {
+					const id = el.getAttribute('data-n2l-id');
+					if (id && originalElementsSnapshot.has(id)) {
+						// Revert to original state
+						const snapshot = originalElementsSnapshot.get(id);
+						el.className = snapshot.className;
+						el.style.cssText = snapshot.styleCssText;
+					} else if (id) {
+						// Remove elements added during preview
+						elementsToRemove.push(el);
 					}
+				});
+				
+				elementsToRemove.forEach(el => {
+					if (el.parentNode) {
+						el.remove();
+					}
+				});
+				
+				// Remove data-n2l-id attributes
+				processedBody.querySelectorAll('[data-n2l-id]').forEach(el => el.removeAttribute('data-n2l-id'));
+				
+				// Get clean HTML
+				let processedHTML = processedBody.innerHTML.trim();
+				processedHTML = processedHTML
+					.replace(/\s*N2L_EDITOR_SELECTED\s*/g, ' ')
+					.replace(/class="\s*"/g, '')
+					.replace(/class='\s*'/g, '')
+					.replace(/\s+class=""/g, '')
+					.replace(/\s+class=''/g, '');
+				
+				// Rebuild the full HTML document
+				const processedCSS = cssManager.generateCss();
+				const iframeContent = `
+					<!DOCTYPE html>
+					<html>
+					<head>
+						<meta charset="UTF-8">
+						<title>Preview</title>
+						<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+						<link rel="preconnect" href="https://fonts.googleapis.com">
+						<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+						<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Open+Sans&display=swap" rel="stylesheet">
+						<style>
+							body { margin: 8px; padding: 0; font-family: 'Roboto', sans-serif; position: relative; }
+							.N2L_EDITOR_SELECTED { 
+								outline: 2px dashed #384D68 !important; 
+								box-shadow: 0 0 10px rgba(56, 77, 104, 0.5); 
+								cursor: default;
+							}
+							a { pointer-events: none; }
+							.n2l-comment-indicator {
+								position: absolute;
+								width: 20px;
+								height: 20px;
+								background-color: #2196F3;
+								color: white;
+								border-radius: 50%;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								font-size: 10px;
+								cursor: pointer;
+								z-index: 1002;
+								box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+								border: 1px solid #0d47a1;
+								transition: transform 0.1s ease-out;
+							}
+							.n2l-comment-indicator:hover {
+								transform: scale(1.1);
+							}
+							.n2l-comment-indicator i {
+								pointer-events: none;
+							}
+							${processedCSS}
+						</style>
+						<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>
+					</head>
+					<body>
+						${processedHTML}
+					</body>
+					</html>
+				`;
+				
+				// Reload the iframe with clean content
+				previewIframe.srcdoc = iframeContent;
+				
+				// Wait for iframe to load before continuing
+				previewIframe.onload = () => {
+					iframeWin = previewIframe.contentWindow;
+					iframeDoc = previewIframe.contentDocument || iframeWin.document;
+					
+					// Re-assign IDs and capture state again
+					assignN2LIdsToDom(iframeDoc.body);
+					capturePreviewStartState();
+					
+					// Continue with normal preview mode setup
+					setupPreviewMode();
 				};
-				link.addEventListener('click', link._previewClickHandler);
+				
+				return; // Exit here and continue after iframe loads
 			}
 			
-			// Re-execute JavaScript to restore interactive functionality
-			if (originalJs && originalJs.trim() !== '') {
-				try {
-					const scriptElement = iframeDoc.createElement('script');
-					scriptElement.textContent = originalJs;
-					iframeDoc.body.appendChild(scriptElement);
-					
-					const domLoadedEvent = new Event('DOMContentLoaded', {
-						bubbles: true,
-						cancelable: true
-					});
-					iframeDoc.dispatchEvent(domLoadedEvent);
-					
-				} catch (error) {
-					console.error("Error executing user JavaScript in preview mode:", error);
-				}
-			}
+			// Continue with normal preview mode setup (for first time)
+			setupPreviewMode();
 			
-			previewModeBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Edit';
-			previewModeBtn.classList.add('preview-active');
-			previewIframe.classList.add('preview-mode-frame');
-			previewModeIndicator.style.display = 'block';
 		} else {
 			// EXITING PREVIEW MODE
 			
@@ -3334,6 +3461,7 @@ footer {
 			});
 			
 			iframeDoc.body.addEventListener('click', handleIframeClick, true);
+			const iconContainer = iframeDoc.getElementById('n2l-comment-icon-container');
 			if (iconContainer) iconContainer.style.display = 'block';
 
 			// Restore link prevention for editor mode
@@ -3364,6 +3492,60 @@ footer {
 			previewIframe.classList.remove('preview-mode-frame');
 			previewModeIndicator.style.display = 'none';
 		}
+	}
+
+	// Helper function for preview mode setup
+	function setupPreviewMode() {
+		iframeDoc.body.removeEventListener('click', handleIframeClick, true);
+		deselectElement();
+		
+		const iconContainer = iframeDoc.getElementById('n2l-comment-icon-container');
+		if (iconContainer) iconContainer.style.display = 'none';
+
+		// Handle links
+		const links = iframeDoc.getElementsByTagName('a');
+		for (const link of links) {
+			link.style.pointerEvents = 'auto';
+			
+			link._previewClickHandler = function(event) {
+				const href = this.getAttribute('href');
+				if (href && href.startsWith('http')) {
+					event.preventDefault();
+					console.log(`External link clicked but navigation prevented: ${href}`);
+				} else if (href && href.startsWith('#')) {
+					event.preventDefault();
+					const targetId = href.substring(1);
+					const targetElement = iframeDoc.getElementById(targetId);
+					if (targetElement) {
+						targetElement.scrollIntoView({ behavior: 'smooth' });
+					}
+				}
+			};
+			link.addEventListener('click', link._previewClickHandler);
+		}
+		
+		// Execute JavaScript
+		if (originalJs && originalJs.trim() !== '') {
+			try {
+				const scriptElement = iframeDoc.createElement('script');
+				scriptElement.textContent = originalJs;
+				iframeDoc.body.appendChild(scriptElement);
+				
+				const domLoadedEvent = new Event('DOMContentLoaded', {
+					bubbles: true,
+					cancelable: true
+				});
+				iframeDoc.dispatchEvent(domLoadedEvent);
+				
+			} catch (error) {
+				console.error("Error executing user JavaScript in preview mode:", error);
+			}
+		}
+		
+		previewModeBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Edit';
+		previewModeBtn.classList.add('preview-active');
+		previewIframe.classList.add('preview-mode-frame');
+		previewModeIndicator.style.display = 'block';
 	}
 
 	// --- CSS Rule Handling ---
@@ -3502,10 +3684,52 @@ footer {
 	// --- Control Actions ---
 	function applyClassAndId() {
 		if (!selectedElement) return;
-		const newClasses = elementClassInput.value.trim().split(/\s+/).filter(Boolean);
-		Array.from(selectedElement.classList).filter(cls => cls !== 'N2L_EDITOR_SELECTED').forEach(cls => selectedElement.classList.remove(cls));
-		newClasses.forEach(cls => selectedElement.classList.add(cls));
-		selectedElement.id = elementIdInput.value.trim();
+		
+		// Store original state
+		const oldClasses = Array.from(selectedElement.classList)
+			.filter(cls => cls !== 'N2L_EDITOR_SELECTED');
+		const oldId = selectedElement.id;
+		
+		// If direct execution (from command)
+		if (commandHistory.isExecutingCommand) {
+			// Apply new values
+			Array.from(selectedElement.classList)
+				.filter(cls => cls !== 'N2L_EDITOR_SELECTED')
+				.forEach(cls => selectedElement.classList.remove(cls));
+			
+			const newClasses = elementClassInput.value.trim().split(/\s+/).filter(Boolean);
+			newClasses.forEach(cls => selectedElement.classList.add(cls));
+			selectedElement.id = elementIdInput.value.trim();
+		} else {
+			// Use command pattern
+			// Create a custom command or use HTMLChangeCommand
+			const oldHtml = selectedElement.outerHTML;
+			
+			// Apply changes
+			Array.from(selectedElement.classList)
+				.filter(cls => cls !== 'N2L_EDITOR_SELECTED')
+				.forEach(cls => selectedElement.classList.remove(cls));
+			
+			const newClasses = elementClassInput.value.trim().split(/\s+/).filter(Boolean);
+			newClasses.forEach(cls => selectedElement.classList.add(cls));
+			selectedElement.id = elementIdInput.value.trim();
+			
+			const newHtml = selectedElement.outerHTML;
+			
+			// Create and execute command
+			const command = new HTMLChangeCommand(selectedElement, oldHtml, newHtml);
+			commandHistory.execute(command);
+		}
+		
+		// Update snapshot
+		const id = selectedElement.getAttribute('data-n2l-id');
+		if (id) {
+			originalElementsSnapshot.set(id, {
+				className: selectedElement.className,
+				styleCssText: selectedElement.style.cssText
+			});
+		}
+		
 		updateElementInfo();
 		populateCssRules(selectedElement);
 		positionSelectorIndicator();
@@ -3581,7 +3805,7 @@ footer {
 		const clone = selectedElement.cloneNode(true);
 		clone.classList.remove('N2L_EDITOR_SELECTED');
 		
-		// ***** MODIFIED: Strip old IDs, assign new unique ID(s) to clone, and clear snapshot *****
+		// Strip old IDs, assign new unique ID(s) to clone
 		function stripN2LIdsRecursive(element) {
 			if (element.removeAttribute) element.removeAttribute('data-n2l-id');
 			if (element.querySelectorAll) {
@@ -3590,14 +3814,25 @@ footer {
 		}
 		stripN2LIdsRecursive(clone); // Strip existing IDs from the clone and its children
 		assignN2LIdsToDom(clone);    // Assign new, unique IDs
-		originalElementsSnapshot.clear(); // DOM structure changed
+		
+		// Add the cloned element and its children to the snapshot
+		const clonedElements = [clone, ...clone.querySelectorAll('[data-n2l-id]')];
+		clonedElements.forEach(el => {
+			const id = el.getAttribute('data-n2l-id');
+			if (id) {
+				originalElementsSnapshot.set(id, {
+					className: el.className,
+					styleCssText: el.style.cssText
+				});
+			}
+		});
 
 		if (above) {
 			selectedElement.parentNode.insertBefore(clone, selectedElement);
 		} else {
 			selectedElement.parentNode.insertBefore(clone, selectedElement.nextSibling);
 		}
-        updateAllCommentIconsPositions(); // Cloned element won't have icon yet, but layout changed
+		updateAllCommentIconsPositions();
 	}
 
     // --- Comment Icon Logic ---
@@ -3848,7 +4083,7 @@ footer {
 			promptSuggestion.style.marginBottom = '10px';
 			promptSuggestion.style.padding = '8px';
 			promptSuggestion.style.borderRadius = '3px';
-			promptSuggestion.innerHTML = "<b>A prompt you can use to ask the LLM to work on this according to your comments:</b><br>Please review the code and the comments I added for you. Edit it guided by the comments. Provide the full code with no placeholders or omissions, and make sure that all functionalities remain intact.";
+			promptSuggestion.innerHTML = "<b>A prompt you can use to ask the LLM to work on this according to your comments:</b><br>Please review the code and the comments I added for you. Preserve the changes I made to the content and only change something if I made an obvious mistake, either in the code or the language. Edit it guided by the comments. Provide the full code with no placeholders or omissions, and make sure that all functionalities remain intact.";
 			dialog.appendChild(promptSuggestion);
 			
 			// Add toggle for including prompt in output
@@ -3932,7 +4167,7 @@ footer {
 				if (toggleCheckbox.checked) {
 					const promptComment = `<!--
 	LLM PROMPT:
-	Please review the code and the comments I added for you. Edit it guided by the comments. Provide the full code with no placeholders or omissions, and make sure that all functionalities remain intact.
+	Please review the code and the comments I added for you. Preserve the changes I made to the content and only change something if I made an obvious mistake, either in the code or the language. Edit it guided by the comments. Provide the full code with no placeholders or omissions, and make sure that all functionalities remain intact.
 	-->\n\n`;
 					finalCode += promptComment;
 				}
