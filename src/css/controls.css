@@ -1,0 +1,938 @@
+/* Controls Styling (Sidebar) */
+.n2l-sidebar h3 {
+    margin-top: 9px;
+    margin-bottom: 5px;
+    padding-bottom: 3px;
+    color: #384D68;
+    font-weight: 300;
+}
+.n2l-sidebar label {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #384D68;
+}
+.n2l-sidebar input[type="text"],
+.n2l-sidebar input[type="color"],
+.n2l-sidebar input[type="number"],
+.n2l-sidebar textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    font-size: 0.9em;
+    font-family: 'Roboto', sans-serif;
+}
+
+.n2l-sidebar textarea {
+    min-height: 160px;
+    resize: vertical;
+    font-family: monospace;
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    font-size: 0.9em;
+}
+.n2l-sidebar button {
+    background-color: white;
+    color: #384D68;
+    border: 1px solid #384D68;
+    border-radius: 0;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-family: 'Roboto', sans-serif;
+}
+.n2l-sidebar button:hover {
+    background-color: #f0f0f0;
+}
+.n2l-sidebar button.secondary {
+    background-color: white;
+}
+.n2l-sidebar button.secondary:hover {
+    background-color: #f0f0f0;
+}
+
+
+#n2l-controls-panel {
+    margin-top: 1px;
+}
+#n2l-element-info {
+    font-size: 0.8em;
+    color: #384D68;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+.n2l-control-group {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #e9e9e9;
+    border-radius: 0;
+    border: 1px solid #ddd;
+}
+
+/* Sidebar Tabs */
+.n2l-sidebar-tabs {
+    display: flex;
+    margin-bottom: -1px; /* Overlap panels border */
+}
+.n2l-sidebar-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    margin-right: -1px;
+    font-size: 0.9em;
+    color: #555;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+.n2l-sidebar-tab:hover {
+    background-color: #e9e9e9;
+}
+.n2l-sidebar-tab.active {
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+    color: #384D68;
+    font-weight: bold;
+    z-index: 1;
+}
+.n2l-sidebar-tab-panels {
+    border-top: 1px solid #ccc;
+    padding-top: 15px;
+}
+.n2l-sidebar-tab-panel {
+    display: none;
+}
+.n2l-sidebar-tab-panel.active {
+    display: block;
+}
+/* The control groups are now inside panels, so remove their individual styling */
+.n2l-sidebar-tab-panel .n2l-control-group {
+    border: none;
+    padding: 0;
+    background-color: transparent;
+}
+.n2l-inline-controls label {
+    display: inline-block;
+    margin-right: 5px;
+    width: auto;
+}
+.n2l-inline-controls input {
+    width: 60px;
+    margin-right: 10px;
+}
+.n2l-inline-controls input[type="color"] {
+    width: 40px;
+    padding: 2px;
+    vertical-align: middle;
+}
+
+.n2l-view-toggle {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+.n2l-view-toggle .n2l-view-toggle-checkbox {
+    width: auto;
+    margin-top: 0;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.n2l-view-toggle label {
+    display: inline;
+    margin-top: 0;
+    font-weight: normal;
+    flex-grow: 1;
+}
+
+/* Action Toolbar (Floating) */
+#n2l-action-toolbar {
+    position: absolute;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 5px 8px;
+    border-radius: 0;
+    border: 1px solid #ccc;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    white-space: nowrap;
+}
+
+/* Selector indicator above the toolbar */
+#n2l-selector-indicator {
+    position: absolute;
+    display: none;
+    background-color: rgba(56, 77, 104, 0.9);
+    color: white;
+    padding: 3px 6px;
+    font-size: 0.8em;
+    border-radius: 0;
+    z-index: 1001;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+#n2l-action-toolbar button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px 6px;
+    font-size: 1.1em;
+    margin: 0 3px;
+    vertical-align: middle;
+    transition: color 0.2s ease;
+}
+#n2l-action-toolbar button:hover {
+    color: #384D68; /* This was a typo, should be a lighter color like #ddd or #fff */
+}
+#n2l-action-toolbar button:hover {
+    color: #cce5ff; /* Light blue hover, or another contrasting color */
+}
+#n2l-action-toolbar button.active {
+    color: #66b3ff; /* A different blue to show it's active */
+}
+#n2l-action-toolbar button.danger:hover {
+    color: #ff4d4d;
+}
+
+/* Integrated class/ID and CSS management section */
+.n2l-selector-manager {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 0;
+}
+
+.n2l-selector-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.n2l-selector-inputs > div {
+    flex: 1;
+    min-width: 100px;
+}
+
+.n2l-selector-manager h4 {
+    margin-bottom: 8px;
+    color: #384D68;
+}
+
+.n2l-css-media-query {
+    background-color: #dbe4f0;
+    padding: 4px 8px;
+    font-size: 0.85em;
+    font-family: monospace;
+    color: #384D68;
+    margin: -8px -8px 8px -8px; /* Span across padding */
+    border-bottom: 1px solid #ccc;
+}
+
+.n2l-css-rule-item {
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 0;
+}
+
+.n2l-css-selector {
+    font-weight: bold;
+    color: #384D68;
+    margin-bottom: 4px;
+}
+
+.n2l-css-properties {
+    width: 100%;
+    font-family: monospace;
+    height: 60px;
+    margin-bottom: 5px;
+}
+
+.n2l-rule-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.n2l-rule-actions button {
+    padding: 3px 8px;
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+/* Checkbox slider for "Apply to element" */
+.n2l-slider-container {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+	display:none;
+}
+
+.n2l-slider {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    margin-right: 8px;
+}
+
+.n2l-slider input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.n2l-slider-switch {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.n2l-slider-switch:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .n2l-slider-switch {
+    background-color: #384D68;
+}
+
+input:checked + .n2l-slider-switch:before {
+    transform: translateX(20px);
+}
+
+.n2l-slider-label {
+    font-size: 0.8em;
+    color: #555;
+}
+
+/* Modal buttons */
+.modal-button {
+    background-color: white;
+    color: #384D68;
+    border: 1px solid #384D68;
+    border-radius: 0;
+    padding: 5px 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+.modal-button:hover {
+    background-color: #f0f0f0;
+}
+
+/* Terms Modal Styles */
+.n2l-modal {
+    display: none; 
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+}
+
+.n2l-modal-content {
+    background-color: #fefefe;
+    margin: 0 auto;
+    padding: 25px;
+    border: 1px solid #888;
+    width: 75%;
+    max-width: 800px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-radius: 0;
+}
+
+.n2l-modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+}
+
+.n2l-logo {
+    height: 60px;
+    margin-right: 20px;
+}
+
+.n2l-modal-header h2 {
+    color: #384D68;
+    margin: 0;
+    font-size: 28px;
+    font-weight: 400;
+}
+
+.n2l-modal-body {
+    margin-bottom: 25px;
+}
+
+.n2l-modal-body {
+    position: relative; /* For loading overlay */
+}
+
+.n2l-modal-body p {
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: #384D68;
+}
+
+/* Settings Modal Specifics */
+.n2l-modal-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+.n2l-modal-tab-button {
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+}
+.n2l-modal-tab-button.active {
+    border-bottom-color: #384D68;
+    font-weight: bold;
+}
+.n2l-modal-tab-panel {
+    display: none;
+}
+.n2l-modal-tab-panel.active {
+    display: block;
+}
+.n2l-form-group {
+    margin-bottom: 15px;
+}
+.n2l-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.n2l-form-group input,
+.n2l-form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+}
+/* AI Edit Modal Context Viewer */
+.n2l-ai-context-container {
+    margin-top: 15px;
+}
+.n2l-ai-context-container .n2l-collapsible-section .n2l-collapsible-header {
+    width: 100%;
+    text-align: left;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin:0;
+}
+.n2l-ai-context-container .n2l-collapsible-section .n2l-collapsible-content {
+    background: #fdfdfd;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.n2l-ai-context-snippet {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 8px;
+    margin-bottom: 10px;
+    font-family: monospace;
+    font-size: 0.85em;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 150px;
+    overflow-y: auto;
+}
+#n2l-ai-edit-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    display: none; /* JS will toggle to 'flex' */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 10;
+    color: #384D68;
+}
+
+
+#n2l-ai-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    display: none; /* JS will toggle to 'flex' */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 10;
+    color: #384D68;
+}
+
+.n2l-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+    font-size: 14px;
+    color: #666;
+}
+
+.n2l-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    /* border: cornsilk; */
+    width: 30px;
+    height: 30px;
+    line-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: crimson;
+    border-radius: 50%;
+}
+
+.n2l-close:hover {
+    color: #555;
+}
+
+/* Getting Started Section */
+.n2l-getting-started {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0;
+    padding: 12px;
+    margin: 15px 0;
+    font-size: 0.9em;
+	margin-top: 5px;
+}
+
+.n2l-getting-started h4 {
+    margin: 0 0 8px 0;
+    color: #384D68;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.n2l-getting-started p {
+    margin: 0 0 8px 0;
+    color: #555;
+}
+
+.n2l-getting-started ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.n2l-getting-started li {
+    margin-bottom: 5px;
+    color: #555;
+    line-height: 1.4;
+}
+
+.n2l-getting-started li:last-child {
+    margin-bottom: 0;
+}
+
+.n2l-getting-started strong {
+    color: #384D68;
+    font-weight: 500;
+}
+
+/* WYSIWYG Editor styles */
+.n2l-wysiwyg-container {
+    border: 1px solid #ccc;
+    margin-top: 4px;
+	margin-bottom: 4px;
+}
+
+.n2l-wysiwyg-toolbar {
+    display: flex;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+    background-color: #f5f5f5;
+	justify-content: space-around;
+}
+
+.n2l-wysiwyg-button {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+}
+
+.n2l-wysiwyg-button:hover {
+    background-color: #e0e0e0;
+}
+
+.n2l-wysiwyg-button.active {
+    background-color: #384D68;
+    color: white;
+    border-color: #384D68;
+}
+
+.n2l-wysiwyg-editor {
+    min-height: 120px;
+    padding: 5px;
+    font-family: 'Roboto', sans-serif;
+    outline: none;
+    overflow-y: auto;
+    max-height: none;
+	background-color:white;
+}
+
+.n2l-wysiwyg-editor:focus {
+    box-shadow: 0 0 3px rgba(56, 77, 104, 0.3);
+}
+
+
+.n2l-modal-open-btn {
+    background: none;
+    border: 1px solid #ccc;
+    padding: 2px 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    line-height: 1;
+    color: #555;
+}
+.n2l-modal-open-btn:hover {
+    background-color: #e0e0e0;
+    color: #384D68;
+}
+
+.n2l-js-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.n2l-js-editor-header label {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+/* JS Snippet Viewer */
+.n2l-js-snippet {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 8px;
+    margin-bottom: 10px;
+    font-family: monospace;
+    font-size: 0.85em;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* New CSS Rule form */
+.n2l-new-rule-form {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border: 1px dashed #ccc;
+    margin-top: 10px;
+}
+
+.n2l-new-rule-form input,
+.n2l-new-rule-form textarea {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.n2l-new-rule-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.n2l-add-rule-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 8px;
+    margin-top: 8px;
+    background-color: #f0f0f0;
+    border: 1px dashed #384D68;
+    color: #384D68;
+    cursor: pointer;
+}
+
+.n2l-add-rule-btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* Prompt Generator Modal Styles */
+.n2l-prompt-modal-content {
+    width: 90%;
+    max-width: 1200px;
+    height: 100vh;
+    max-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#n2l-prompt-generator-iframe {
+    width: 100%;
+    height: calc(100% - 20px);
+    border: none;
+    overflow: auto;
+}
+
+.n2l-prompt-generator-container {
+    padding: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* Sidebar Section Headers */
+.n2l-sidebar-section-header {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+    font-size: 1em;
+    font-weight: bold;
+    color: #384D68;
+}
+
+.n2l-sidebar-section-note {
+    font-size: 0.85em;
+    color: #555;
+    margin-top: -8px;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.n2l-css-control > .n2l-sidebar-section-header:first-of-type {
+    margin-top: 0;
+}
+
+/* Collapsible Section for CSS Rules */
+.n2l-collapsible-header {
+    background-color: #e0e0e0;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #ccc;
+    margin: 0;
+}
+.n2l-collapsible-header:hover {
+    background-color: #d5d5d5;
+}
+.n2l-collapsible-icon {
+    transition: transform 0.2s ease-in-out;
+}
+.n2l-collapsible-section.open .n2l-collapsible-icon {
+    transform: rotate(180deg);
+}
+.n2l-collapsible-content {
+    display: none; /* Collapsed by default */
+    border: 1px solid #ccc;
+    border-top: none;
+    padding: 10px;
+    background-color: #f8f8f8;
+}
+.n2l-collapsible-section.open .n2l-collapsible-content {
+    display: block;
+}
+
+/* Full code editor modals */
+.n2l-code-editor-modal-content {
+    width: 90%;
+    max-width: 1400px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.n2l-code-editor-modal-content .n2l-modal-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+    overflow: hidden;
+}
+
+.n2l-code-editor-modal-content .CodeMirror {
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.n2l-code-editor-modal-content .modal-button {
+    margin-top: 10px;
+    align-self: flex-end;
+    padding: 8px 16px;
+    margin-right: 0;
+}
+
+/* CodeMirror editor styling */
+.CodeMirror {
+    border: 1px solid #ccc;
+    min-height: 160px;
+    height: auto;
+    font-size: 14px;
+}
+
+/* Snap-to-Code Panel */
+#n2l-snap-to-code-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.n2l-snap-tabs {
+    flex-shrink: 0;
+    margin-bottom: 0;
+}
+.n2l-snap-editors-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Important for flex children to shrink */
+    padding-top: 10px;
+}
+.n2l-snap-section {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Important for flex-grow */
+    flex-grow: 1; /* Make sections share space */
+}
+#n2l-snap-to-code-panel .CodeMirror {
+    min-height: 100px;
+    flex-grow: 1; /* Allow editors to grow */
+}
+.n2l-snap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.n2l-snap-header h4 {
+    margin: 0;
+    color: #384D68;
+    font-weight: bold;
+}
+
+.n2l-snap-header-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.n2l-snap-header-buttons button {
+    background: none;
+    border: 1px solid #ccc;
+    padding: 2px 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    line-height: 1;
+    color: #555;
+}
+
+.n2l-snap-header-buttons button:hover {
+    background-color: #e0e0e0;
+    color: #384D68;
+}
+
+/* CodeMirror highlighting styles */
+.n2l-cm-highlight-main {
+    background-color: rgba(255, 255, 0, 0.5); /* Yellow for the main snap */
+}
+.n2l-cm-highlight-secondary {
+    background-color: rgba(173, 216, 230, 0.6); /* Light blue for secondary mentions */
+}
+
+/* Improvement C: Breadcrumbs */
+.n2l-breadcrumbs {
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.n2l-crumb {
+    cursor: pointer;
+    color: #384D68;
+    text-decoration: underline;
+}
+.n2l-crumb:hover {
+    color: #2196F3;
+}
+.n2l-crumb-separator {
+    margin: 0 4px;
+    color: #999;
+}
+
+/* Scenario 1: Computed Styles */
+.n2l-computed-style-box {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #e8eaf6;
+    border: 1px solid #c5cae9;
+    font-size: 0.85em;
+    color: #384D68;
+}
+.n2l-computed-prop {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted #ccc;
+    padding: 2px 0;
+}
+.n2l-computed-prop span:first-child { font-weight: bold; }
+

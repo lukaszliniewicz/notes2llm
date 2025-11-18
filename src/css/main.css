@@ -1,0 +1,364 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto:wght@300;400;700&display=swap');
+
+/* Basic Reset & Body Styling */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { 
+    height: 100%; 
+    overflow: hidden; 
+    font-family: 'Roboto', sans-serif; 
+    color: #384D68;
+}
+
+/* App Layout */
+.n2l-app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.n2l-top-bar {
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+    padding: 2px 10px;
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    z-index: 2001; /* Above modals */
+}
+
+.n2l-menu {
+    position: relative;
+}
+
+.n2l-menu-btn {
+    background: none;
+    border: 1px solid transparent;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    color: #384D68;
+}
+
+.n2l-menu-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.n2l-top-bar-btn {
+    background: none;
+    border: 1px solid transparent;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    color: #384D68;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.n2l-top-bar-btn:hover {
+    background-color: #e0e0e0;
+}
+.n2l-top-bar-btn:disabled {
+    color: #aaa;
+    cursor: default;
+    background-color: transparent;
+}
+.n2l-top-bar-btn:disabled:hover {
+    background-color: transparent;
+}
+
+.n2l-menu-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border: 1px solid #ccc;
+}
+
+.n2l-menu-content .n2l-menu-item {
+    color: black;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.n2l-menu-content .n2l-menu-item:hover {
+    background-color: #e0e0e0;
+}
+
+.n2l-menu-content .n2l-menu-item:disabled {
+    color: #aaa;
+    cursor: default;
+    background-color: #f9f9f9;
+}
+
+.n2l-top-bar-btn.preview-active {
+    background-color: #28a745;
+    color: white;
+}
+.n2l-top-bar-btn.preview-active:hover {
+    background-color: #218838;
+}
+
+.n2l-top-bar-divider {
+    border-left: 1px solid #ccc;
+    margin: 4px 5px;
+}
+
+.n2l-mode-switcher-btn.active {
+    background-color: #dbe4f0;
+    font-weight: bold;
+}
+
+.n2l-main-content {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.n2l-sidebar {
+    width: 350px;
+    min-width: 250px;
+    max-width: 60%;
+    background-color: #f0f0f0;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    transition: min-width 0.3s ease, width 0.3s ease;
+    height: 100%;
+}
+
+.n2l-sidebar-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+}
+
+.n2l-sidebar.collapsed {
+    width: 45px;
+    min-width: 45px;
+}
+
+.n2l-sidebar.collapsed > * {
+    display: none;
+}
+
+.n2l-sidebar.collapsed > .n2l-sidebar-header {
+    display: flex;
+}
+
+.n2l-sidebar.collapsed .n2l-sidebar-header h3,
+.n2l-sidebar.collapsed .n2l-sidebar-header .n2l-sidebar-logo,
+.n2l-sidebar.collapsed #n2l-sidebar-settings-btn {
+    display: none;
+}
+
+.n2l-sidebar.collapsed #n2l-sidebar-toggle i {
+    transform: rotate(180deg);
+}
+
+/* Sidebar Header with Logo */
+.n2l-sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.n2l-sidebar-header h3 {
+    flex-grow: 1;
+}
+
+#n2l-sidebar-toggle,
+#n2l-sidebar-settings-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    color: #555;
+    padding: 5px;
+}
+
+#n2l-sidebar-toggle:hover,
+#n2l-sidebar-settings-btn:hover {
+    color: #384D68;
+}
+
+.n2l-sidebar-logo {
+    height: 24px;
+    margin-right: 10px;
+}
+
+/* Resizer Handle */
+.n2l-resizer {
+    width: 5px;
+    background-color: #ccc;
+    cursor: ew-resize;
+    height: 100%;
+}
+.n2l-resizer:hover {
+    background-color: #aaa;
+}
+
+/* Preview Pane */
+.n2l-preview-pane {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    background-color: #e9e9e9; /* A slightly off-white bg to see iframe boundaries */
+    position: relative; /* Needed for icon container positioning */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent overflow during sidebar animation */
+    contain: layout paint; /* Optimize rendering to prevent animation glitches */
+}
+
+/* Viewport switcher bar */
+#n2l-viewport-bar {
+    background-color: #f0f0f0;
+    padding: 5px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    flex-shrink: 0;
+}
+
+#n2l-viewport-bar button {
+    background: none;
+    border: 1px solid transparent;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: #555;
+}
+
+#n2l-viewport-bar button:hover {
+    background-color: #e0e0e0;
+}
+
+#n2l-viewport-bar button.active {
+    color: #384D68;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+#n2l-iframe-container {
+    flex-grow: 1;
+    padding: 0;
+    overflow: hidden; /* Prevent animation glitch on desktop view */
+}
+
+#n2l-preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+#n2l-iframe-container.n2l-viewport-tablet #n2l-preview-iframe {
+    width: 768px;
+    height: 1024px;
+}
+
+#n2l-iframe-container.n2l-viewport-mobile #n2l-preview-iframe {
+    width: 375px;
+    height: 667px;
+}
+
+/* Re-enable scrolling and flex centering for fixed-width viewports */
+#n2l-iframe-container.n2l-viewport-tablet,
+#n2l-iframe-container.n2l-viewport-mobile {
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Preview mode indicator */
+.preview-mode-frame {
+    border: 3px solid #28a745 !important;
+}
+
+/* Preview mode notification */
+#n2l-preview-mode-indicator {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(40, 167, 69, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    z-index: 1000;
+    display: none;
+}
+
+/* Style for selected element in iframe */
+.N2L_EDITOR_SELECTED {
+    outline: 2px dashed #384D68 !important;
+    box-shadow: 0 0 10px rgba(56, 77, 104, 0.5);
+}
+
+/* Comment Indicator Icon Style */
+.n2l-comment-indicator {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #2196F3; /* Blue */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    z-index: 1002; /* Above selected outline, potentially below toolbar if toolbar needs to be higher */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    border: 1px solid #0d47a1; /* Darker blue border */
+    transition: transform 0.1s ease-out;
+}
+.n2l-comment-indicator:hover {
+    transform: scale(1.1);
+}
+.n2l-comment-indicator i {
+    pointer-events: none; /* So clicks go to the div itself */
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .n2l-compact-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .n2l-welcome-content-wrapper {
+        flex-direction: column;
+    }
+    
+    .n2l-welcome-left,
+    .n2l-welcome-right {
+        padding: 20px;
+    }
+    
+    .n2l-welcome-right {
+        position: relative;
+        height: auto;
+    }
+    
+    .n2l-component-cards {
+        flex-direction: column;
+    }
+}

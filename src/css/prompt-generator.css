@@ -1,0 +1,211 @@
+.prompt-gen-container {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.description {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #555;
+    font-style: italic;
+}
+
+fieldset {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+legend {
+    font-weight: bold;
+    padding: 0 10px;
+    color: #384D68;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="url"],
+input[type="number"],
+select,
+textarea,
+input[type="file"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+input[type="color"] {
+    width: 60px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.prompt-gen-color-picker-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.prompt-gen-color-picker-container label {
+    margin-right: 10px;
+    margin-bottom: 0;
+    width: 200px;
+}
+
+.prompt-gen-color-value {
+    margin-left: 10px;
+    font-family: monospace;
+}
+
+textarea {
+    min-height: 100px; /* Default min-height for textareas */
+    resize: vertical;
+}
+
+#prompt-gen-summary {
+    min-height: 80px;
+}
+#prompt-gen-additional-style {
+    min-height: 120px; 
+}
+#prompt-gen-content-instructions {
+    min-height: 180px;
+}
+
+
+input[type="radio"],
+input[type="checkbox"] {
+    margin-right: 5px;
+    vertical-align: middle; 
+}
+
+.prompt-gen-radio-group label,
+.prompt-gen-checkbox-group label {
+    font-weight: normal;
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 5px; 
+}
+
+.prompt-gen-inline-label {
+    display: inline-block !important;
+    font-weight: normal !important;
+    margin-left: 5px;
+}
+
+.prompt-gen-container button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #ffffff;
+    color: #384D68;
+    border: 1px solid #384D68;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.prompt-gen-container button:hover {
+    background-color: #384D68;
+    color: white;
+}
+
+#prompt-gen-output {
+    margin-top: 20px;
+    padding: 15px;
+    background: #eef;
+    border: 1px solid #cce;
+    white-space: pre-wrap; 
+    word-wrap: break-word;
+    font-family: monospace;
+}
+
+.prompt-gen-hidden {
+    display: none !important; /* Added important to ensure override */
+}
+
+.prompt-gen-sub-options {
+    margin-left: 20px;
+    padding-left: 15px;
+    border-left: 2px solid #eee;
+    margin-top: 10px;
+}
+
+.prompt-gen-field-note {
+    font-size: 0.9em;
+    color: #777;
+    margin-bottom: 10px;
+    font-style: italic; 
+}
+
+.prompt-gen-nested-sub-options {
+    margin-left: 15px;
+    padding-left: 10px;
+    border-left: 1px solid #eee;
+    margin-top: 5px;
+}
+
+.prompt-gen-copy-button {
+    display: inline-block;
+    width: auto;
+    padding: 5px 10px;
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.prompt-gen-output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.prompt-gen-output-header div {
+    display: flex;
+    gap: 10px;
+}
+
+.prompt-gen-tip-frame {
+    border: 1px solid #4CAF50;
+    background-color: #e8f5e9;
+    padding: 10px 15px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+.prompt-gen-tip-frame p.prompt-gen-field-note {
+    margin: 0;
+    color: #1b5e20;
+    font-style: normal; 
+}
+
+.prompt-gen-other-style-text {
+    display: none; 
+    width: 250px; 
+    margin-left: 5px;
+    vertical-align: baseline;
+    padding: 8px; 
+    margin-bottom: 5px; 
+}
+h3.section-sub-heading {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #384D68;
+    font-size: 1.1em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}

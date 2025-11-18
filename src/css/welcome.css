@@ -1,0 +1,434 @@
+/* Welcome Page Styles - Simplified */
+.n2l-welcome-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f5f7fa;
+    z-index: 2000;
+    overflow-y: auto;
+    font-family: 'Roboto', sans-serif;
+    color: #384D68;
+}
+
+.n2l-welcome-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 40px auto;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 80vh;
+}
+
+/* Header */
+.n2l-welcome-header {
+    background-color: #384D68;
+    color: white;
+    padding: 30px 40px;
+    display: flex;
+    align-items: center;
+}
+
+.n2l-welcome-logo {
+    width: 60px;
+    height: auto;
+    margin-right: 20px;
+}
+
+.n2l-title-container h1 {
+    font-size: 28px;
+    margin: 0;
+    font-weight: 400;
+}
+
+.n2l-subtitle {
+    font-size: 16px;
+    margin: 5px 0 0 0;
+    opacity: 0.9;
+    font-weight: 300;
+}
+
+.n2l-header-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.n2l-donation-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.n2l-donation-link:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* Main Content */
+.n2l-welcome-main-content {
+    padding: 40px;
+    flex-grow: 1;
+}
+
+.n2l-welcome-intro {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 18px;
+    color: #555;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.n2l-intro-lead {
+    margin-bottom: 30px;
+}
+
+.n2l-use-cases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.n2l-use-case {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+.n2l-use-case:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border-color: #dbe4f0;
+}
+
+.n2l-use-case i {
+    font-size: 24px;
+    color: #384D68;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.n2l-use-case h4 {
+    margin: 0 0 8px 0;
+    color: #384D68;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.n2l-use-case p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Start Widget */
+.n2l-start-widget {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    min-height: 350px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+    overflow: hidden;
+}
+
+.n2l-start-tabs {
+    width: 250px;
+    background-color: #f9f9f9;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.n2l-start-tab {
+    padding: 18px 25px;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    font-size: 15px;
+    color: #555;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.n2l-start-tab i {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+    color: #888;
+}
+
+.n2l-start-tab:hover {
+    background-color: #f0f0f0;
+    color: #384D68;
+}
+
+.n2l-start-tab:hover i {
+    color: #384D68;
+}
+
+.n2l-start-tab.active {
+    background-color: white;
+    color: #384D68;
+    font-weight: 500;
+    border-right: 1px solid white;
+    margin-right: -1px;
+    border-left: 4px solid #384D68;
+}
+
+.n2l-start-tab.active i {
+    color: #2196F3;
+}
+
+.n2l-start-content {
+    flex: 1;
+    padding: 30px;
+    background-color: white;
+}
+
+.n2l-start-panel {
+    display: none;
+    height: 100%;
+    flex-direction: column;
+}
+
+.n2l-start-panel.active {
+    display: flex;
+}
+
+.n2l-start-panel h3 {
+    margin-top: 0;
+    color: #384D68;
+    font-size: 24px;
+    margin-bottom: 15px;
+    font-weight: 400;
+}
+
+.n2l-start-panel p {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+#n2l-welcome-code-input {
+    width: 100%;
+    flex-grow: 1;
+    min-height: 150px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    resize: none;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+#n2l-welcome-code-input:focus {
+    border-color: #384D68;
+    outline: none;
+    background-color: white;
+}
+
+.n2l-panel-actions {
+    margin-top: auto;
+    display: flex;
+    gap: 15px;
+}
+
+.n2l-panel-actions.column-layout {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.n2l-panel-actions.column-layout button {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+}
+
+/* Buttons */
+.n2l-welcome-btn {
+    padding: 10px 16px;
+    border: 1px solid #384D68;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.n2l-welcome-btn i {
+    margin-right: 6px;
+}
+
+.n2l-welcome-btn.primary {
+    background-color: #384D68;
+    color: white;
+    flex-grow: 2;
+}
+
+.n2l-welcome-btn.primary:hover {
+    background-color: #2a3a4d;
+}
+
+.n2l-welcome-btn.secondary {
+    background-color: white;
+    color: #384D68;
+    flex-grow: 1;
+}
+
+.n2l-welcome-btn.secondary:hover {
+    background-color: #f0f0f0;
+}
+
+/* Tools Section */
+.n2l-tools-section {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+.n2l-tools-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #384D68;
+}
+
+.n2l-tool-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.n2l-tool-item p {
+    margin: 0;
+    color: #555;
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Footer */
+.n2l-welcome-footer {
+    background-color: #f0f0f0;
+    padding: 20px 40px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #777;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.n2l-privacy-notice i {
+    color: #4caf50;
+    margin-right: 5px;
+}
+
+.n2l-footer-links a {
+    color: #384D68;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.n2l-footer-links a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .n2l-welcome-container {
+        margin: 0;
+        border-radius: 0;
+        min-height: 100vh;
+    }
+    
+    .n2l-welcome-header {
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .n2l-header-actions {
+        margin-left: 0;
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .n2l-donation-link {
+        justify-content: center;
+    }
+    
+    .n2l-welcome-main-content {
+        padding: 20px;
+    }
+    
+    .n2l-start-widget {
+        flex-direction: column;
+    }
+    .n2l-start-tabs {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .n2l-start-tab {
+        flex: 1;
+        justify-content: center;
+        border-bottom: 4px solid transparent;
+        border-left: none;
+        white-space: nowrap;
+        padding: 15px;
+    }
+    .n2l-start-tab.active {
+        border-left: none;
+        border-right: none;
+        border-bottom: 4px solid #384D68;
+        margin-right: 0;
+    }
+    
+    .n2l-welcome-footer {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .n2l-footer-links a {
+        margin: 0 10px;
+    }
+}
